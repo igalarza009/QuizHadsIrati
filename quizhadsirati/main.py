@@ -22,50 +22,144 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 import cgi
 import re
+import sys
 
-REGISTER_PAGE_HTML = '''\
-<!doctype html>
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+REGISTER_PAGE_HTML_2 = '''\
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Irania</title>
+	<link rel="stylesheet" href="/style/estilo.css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
+</head>
+<body class="fondo">
+	<ul>
+		<li class="logo"><img src="/images/QuizLogo2.png"/></li>
+		<li><a href="/">Inicio</a></li>
+		<li class="right"><a href="/SignUp" class="active">Registrarse</a></li>
+		<li class="right"><a href="/Login">Login</a></li>
+	</ul>
+
+	<div style="padding:20px;margin-top:70px;">
+
+		<div class="container">
+
+			<form id='registro' name='registro' method="post">
+
+				<div class="header">
+					<h3> REGISTRO </h3>
+				</div>
+
+				<div class="sep"></div>
+
+				<div class="inputs">
+
+					<p class="error"> %(signup_error)s </p>
+
+					Username(*): <input type="text" name="username" value="%(username)s" placeholder="Tu nombre..." required autofocus=""> <br> 
+					<p class="error"> %(username_error)s </p> 
+
+					<br/>
+
+					Email(*): <input type="text" id="correo" name="email" value="%(email)s" required placeholder="Tu email..." > <br>
+					<p class="error"> %(email_error)s </p>
+
+					<br/>
+
+					Password(*): <input type="password" id="password" name="password" value="%(password)s" autocomplete="off"> <br>
+					<p class="error"> %(password_error)s </p>
+
+					Repite password(*): <input type="password" name="verify" value="%(verify)s" placeholder="La misma contraseña de antes..."> <br>
+					<p class="error"> %(verify_error)s </p>
+	
+					<p align="center">
+						<input type="submit" id="submit" value="REGISTRARSE" name="submit"> 
+					</p>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</body>
+</html>	
+
+'''
+
+LOGIN_PAGE_HTML = '''\
 <html>
 	<head>
-		<title> Registro </title>
-		<style type="text/css">
-			.label {text-align: right}
-			.error {color: red}
-		</style>
+		<title> Login </title>
+		<link rel="stylesheet" href="/style/estilo.css" />
+		<meta charset="utf-8">
 	</head>
-	<body>
-		<h1> REGISTRO </h1>
-		<h2> Rellene los campos por favor: </h2>
-		<form method="post">
-			<table>
-				<tr>
-					<td class="label"> Nombre del Usuario </td>
-					<td> <input type="text" name="username" value="%(username)s" placeholder="Tu nombre..."> </td>
-					<td class="error"> %(username_error)s </td>
-				</tr>
-				<tr>
-					<td class="label"> Password </td>
-					<td> <input type="password" name="password" value="%(password)s" autocomplete="off"> </td>
-					<td class="error"> %(password_error)s </td>
-				</tr>
-				<tr>
-					<td class="label"> Repetir Password </td>
-					<td> <input type="password" name="verify" value="%(verify)s" placeholder="La misma contraseña de antes..."> </td>
-					<td class="error"> %(verify_error)s </td>
-				</tr>
-				<tr>
-					<td class="label"> Email </td>
-					<td> <input type="text" name="email" value="%(email)s" placeholder="Tu email..."> </td>
-					<td class="error"> %(email_error)s </td>
-				</tr>
-			</table>
-			<input type="submit">
-		</form>
+	<body class="fondo">
+		<ul>
+			<li class="logo"><img src="/images/QuizLogo2.png"/></li>
+			<li><a href="/">Inicio</a></li>
+			<li class="right"><a href="/SignUp">Registrarse</a></li>
+			<li class="right"><a href="/Login" class="active">Login</a></li>
+		</ul>
+
+		<div style="padding:20px;margin-top:70px;height: 700px">
+
+			<div class="container">
+
+				<form id="login" method="post">
+
+					<div class="header">
+						<h3> LOGIN </h3>
+					</div>
+
+				<div class="sep"> </div>
+
+				<div class="inputs">
+					<p> Username: <input type="text" required name="username" size="21" value="%(username)s" autofocus=""/> </p>
+					<p> Password: <input type="password" required name="pass" size="21" value="%(password)s" /> </p>
+					<p class="error"> %(error)s </p>
+					<p> <input id="submit" value="ENTRAR" type="submit" /> </p>
+				</div>
+				</form>
+			</div>
+
+		</div>
+		
 	</body>
 </html>
 '''
 
-class Visitante(ndb.Model):
+MAIN_PAGE_HTML = '''\
+<html>
+	<head>
+		<title> Inicio </title>
+		<link rel="stylesheet" href="/style/estilo.css" />
+		<meta charset="utf-8">
+	</head>
+	<body class="fondo">
+		<ul>
+			<li class="logo"><img src="/images/QuizLogo2.png"/></li>
+			<li><a href="/" class="active">Inicio</a></li>
+			<li class="right"><a href="/SignUp">Registrarse</a></li>
+			<li class="right"><a href="/Login">Login</a></li>
+		</ul>
+
+		<div style="padding:20px;margin-top:70px;height: 700px">
+
+			<div class="container">
+
+				<h1> Hola hola </h1>
+
+			</div>
+
+		</div>
+		
+	</body>
+</html>
+'''
+
+class Usuario(ndb.Model):
 	nombre = ndb.StringProperty()
 	email = ndb.StringProperty()
 	password = ndb.StringProperty(indexed=True)
@@ -73,21 +167,16 @@ class Visitante(ndb.Model):
 
 class WelcomeHandler(session_module.BaseSessionHandler):
 	def get(self):
-		user_username = self.request.get('username')
-		self.response.write('<h1> Bienvenido %s !!</h1>' %user_username)
+		user_username = self.session.get('user')
+		self.response.write('<h1> Bienvenid@ %s !!</h1>' %user_username)
 
 class MainHandler(session_module.BaseSessionHandler):
 	def get(self):
-		user = users.get_current_user()
-		if user:
-			greeting = ('Saludos, %s <p> <a href="%s"> Sign out</a><br>' %(user.nickname(), users.create_logout_url('/')))
-			self.response.out.write('<html> <body> <h1>%s</h1></body> </html>' %greeting)
-		else:
-			self.redirect(users.create_login_url(self.request.uri))
+		self.response.out.write(MAIN_PAGE_HTML)
 
 class SignUpHandler(session_module.BaseSessionHandler):
-	def write_form(self, username="", password="", verify="", email="", username_error="", password_error="", verify_error="", email_error=""):
-		self.response.write(REGISTER_PAGE_HTML %{"username" : username, "password" : password, "verify" : verify, "email" : email, "username_error" : username_error, "password_error" : password_error, "verify_error" : verify_error, "email_error" : email_error})
+	def write_form(self, username="", password="", verify="", email="", username_error="", password_error="", verify_error="", email_error="", signup_error=""):
+		self.response.write(REGISTER_PAGE_HTML_2 %{"username" : username, "password" : password, "verify" : verify, "email" : email, "username_error" : username_error, "password_error" : password_error, "verify_error" : verify_error, "email_error" : email_error, "signup_error" : signup_error})
 	
 	def get(self):
 		self.write_form()
@@ -140,20 +229,47 @@ class SignUpHandler(session_module.BaseSessionHandler):
 		if error:
 			self.write_form(sani_username, sani_password, sani_verify, sani_email, username_error, password_error, verify_error, email_error)
 		else:
-			user = Visitante.query(Visitante.nombre == user_username, Visitante.email == user_email).count()
+			user = Usuario.query(Usuario.nombre == user_username, Usuario.email == user_email).count()
 			if user == 0:
-				u = Visitante()
+				u = Usuario()
 				u.nombre = user_username
 				u.email = user_email
 				u.password = user_password
 				u.put()
-				self.redirect("/Welcome?username=%s" %user_username)
+				self.session['user']=user_username
+				self.redirect("/Welcome")
 			else:
-				self.write_form(sani_username, sani_password, sani_verify, sani_email, username_error, password_error, verify_error, email_error)
-				self.response.write("Kaixo: %s <p> Ya estabas fichado" %user_username)
+				signup_error = "Kaixo: %s <br/> Ya estabas fichad@" %user_username
+				self.write_form(sani_username, sani_password, sani_verify, sani_email, username_error, password_error, verify_error, email_error, signup_error)
+
+
+class LoginHandler(session_module.BaseSessionHandler):
+	def write_login_form(self, username="", password="", error=""):
+		self.response.write(LOGIN_PAGE_HTML %{"username" : username, "password" : password, "error" : error})
+	
+	def get(self):
+		self.write_login_form()
+
+	def post(self):
+
+		def escape_html(s):
+			return cgi.escape(s, quote=True)
+
+		user_username = self.request.get('username')
+		user_password = self.request.get('pass')
+
+		user = Usuario.query(Usuario.nombre == user_username, Usuario.password == user_password).count()
+		if user == 0:
+			error = "Credenciales incorrectas"
+			self.write_login_form(user_username, user_password, error)
+		else:
+			self.session['user']=user_username
+			self.redirect("/Welcome")
+
 
 app = webapp2.WSGIApplication([
 	('/Welcome', WelcomeHandler),
 	('/', MainHandler),
 	('/SignUp', SignUpHandler),
+	('/Login', LoginHandler),
 ], config=session_module.myconfig_dict, debug=True)

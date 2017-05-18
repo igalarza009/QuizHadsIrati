@@ -9,11 +9,14 @@ handlers:
   static_files: favicon.ico
   upload: favicon\.ico
 
-- url: .*
-  script: main.app
-
 - url: /images
   static_dir: images
+
+- url: /style
+  static_dir: estilos
+
+- url: .*
+  script: main.app
 
 libraries:
 - name: webapp2
