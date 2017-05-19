@@ -1,0 +1,64 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Añadir pregunta</title>
+	<link rel="stylesheet" href="/style/estilo.css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
+</head>
+<body class="fondo">
+	<ul>
+		<li class="logo"><img src="/images/QuizLogo2.png"/></li>
+		<li><a href="/UserMain">Inicio</a></li>
+		<li><a href="/NuevaPregunta" class="active">Añadir nueva pregunta</a></li>
+		<li><a href="/VerPreguntas">Ver preguntas</a></li>
+		<li class="right"><a href="/Logout">Cerrar sesión</a></li>
+	</ul>
+
+	<div style="padding:20px;margin-top:70px;">
+
+		<div class="container">
+
+			<form id='newQuestion' name='newQuestion' method="post">
+
+				<div class="header">
+					<h3> AÑADIR PREGUNTA </h3>
+				</div>
+
+				<div class="sep"></div>
+
+				<div class="inputs">
+
+					Enunciado: <input type="text" name="enunciado" value="{{enunciado}}" required autofocus=""> <br> 
+					<p class="error"> {{enunciado_error}} </p> 
+
+					Opción 1: <input type="text" id="opcion1" name="opcion1" value="{{opcionUno}}" required > <br>
+					<p class="error"> {{opcionUno_error}} </p>
+
+					Opción 2: <input type="text" id="opcion2" name="opcion2" value="{{opcionDos}}" required > <br>
+					<p class="error"> {{opcionDos_error}} </p>
+
+					Opción 3: <input type="text" id="opcion3" name="opcion3" value="{{opcionTres}}" required > <br>
+					<p class="error"> {{opcionTres_error}} </p>
+
+					Selecciona cuál será la opción correcta:
+					<select name="opcionCorrecta" id="opcionCorrecta">
+						<option value="OpcionUno"> Opción 1 </option>
+						<option value="OpcionDos"> Opción 2 </option>
+						<option value="OpcionTres"> Opción 3 </option>
+					</select>
+
+					Tema de la pregunta: <input type="text" id="tema" name="tema" value="{{tema}}" required > <br>
+					<p class="error"> {{tema_error}} </p>
+
+					<p class="error"> {{error_general}} </p>
+
+					<p align="center">
+						<input type="submit" id="submit" value="AÑADIR PREGUNTA" name="submit"> 
+					</p>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</body>
+</html>	

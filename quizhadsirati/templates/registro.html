@@ -1,0 +1,53 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Registro</title>
+	<link rel="stylesheet" href="/style/estilo.css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
+</head>
+<body class="fondo">
+	<ul>
+		<li class="logo"><img src="/images/QuizLogo2.png"/></li>
+		<li><a href="/">Inicio</a></li>
+		<li class="right"><a href="/SignUp" class="active">Registrarse</a></li>
+		<li class="right"><a href="/Login">Login</a></li>
+	</ul>
+
+	<div style="padding:20px;margin-top:70px;">
+
+		<div class="container">
+
+			<form id='registro' name='registro' method="post">
+
+				<div class="header">
+					<h3> REGISTRO </h3>
+				</div>
+
+				<div class="sep"></div>
+
+				<div class="inputs">
+
+					<p class="error"> {{signup_error}} </p>
+
+					Username(*): <input type="text" name="username" value="{{username}}" placeholder="Tu nombre..." autofocus=""> <br> 
+					<p class="error"> {{username_error}} </p> 
+
+					Email(*): <input type="text" id="correo" name="email" value="{{email}}" placeholder="Tu email..." > <br>
+					<p class="error"> {{email_error}} </p>
+
+					Password(*): <input type="password" id="password" name="password" value="{{password}}" autocomplete="off"> <br>
+					<p class="error"> {{password_error}} </p>
+
+					Repite password(*): <input type="password" name="verify" value="{{verify}}" placeholder="La misma contraseña de antes..."> <br>
+					<p class="error"> {{verify_error}} </p>
+	
+					<p align="center">
+						<input type="submit" id="submit" value="REGISTRARSE" name="submit"> 
+					</p>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</body>
+</html>

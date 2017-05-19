@@ -1,0 +1,39 @@
+<html>
+	<head>
+		<title> Login </title>
+		<link rel="stylesheet" href="/style/estilo.css" />
+		<meta charset="utf-8">
+	</head>
+	<body class="fondo">
+		<ul>
+			<li class="logo"><img src="/images/QuizLogo2.png"/></li>
+			<li><a href="/">Inicio</a></li>
+			<li class="right"><a href="/SignUp">Registrarse</a></li>
+			<li class="right"><a href="/Login" class="active">Login</a></li>
+		</ul>
+
+		<div style="padding:20px;margin-top:70px;height: 700px">
+
+			<div class="container">
+
+				<form id="login" method="post">
+
+					<div class="header">
+						<h3> LOGIN </h3>
+					</div>
+
+				<div class="sep"> </div>
+
+				<div class="inputs">
+					<p> Username: <input type="text" required name="username" size="21" value="{{username}}" autofocus=""/> </p>
+					<p> Password: <input type="password" required name="pass" size="21" value="{{password}}" /> </p>
+					<p class="error"> {{error}} </p>
+					<p> <input id="submit" value="ENTRAR" type="submit" /> </p>
+				</div>
+				</form>
+			</div>
+
+		</div>
+		
+	</body>
+</html>

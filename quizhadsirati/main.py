@@ -39,174 +39,6 @@ jinja_env = jinja2.Environment(
 	autoescape=True)
 jinja_env.filters['b64encode'] = base64.b64encode
 
-REGISTER_PAGE_HTML_2 = '''\
-<html>
-<head>
-	<meta charset="utf-8">
-	<title>Registro</title>
-	<link rel="stylesheet" href="/style/estilo.css" />
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
-</head>
-<body class="fondo">
-	<ul>
-		<li class="logo"><img src="/images/QuizLogo2.png"/></li>
-		<li><a href="/">Inicio</a></li>
-		<li class="right"><a href="/SignUp" class="active">Registrarse</a></li>
-		<li class="right"><a href="/Login">Login</a></li>
-	</ul>
-
-	<div style="padding:20px;margin-top:70px;">
-
-		<div class="container">
-
-			<form id='registro' name='registro' method="post">
-
-				<div class="header">
-					<h3> REGISTRO </h3>
-				</div>
-
-				<div class="sep"></div>
-
-				<div class="inputs">
-
-					<p class="error"> %(signup_error)s </p>
-
-					Username(*): <input type="text" name="username" value="%(username)s" placeholder="Tu nombre..." autofocus=""> <br> 
-					<p class="error"> %(username_error)s </p> 
-
-					Email(*): <input type="text" id="correo" name="email" value="%(email)s" placeholder="Tu email..." > <br>
-					<p class="error"> %(email_error)s </p>
-
-					Password(*): <input type="password" id="password" name="password" value="%(password)s" autocomplete="off"> <br>
-					<p class="error"> %(password_error)s </p>
-
-					Repite password(*): <input type="password" name="verify" value="%(verify)s" placeholder="La misma contraseña de antes..."> <br>
-					<p class="error"> %(verify_error)s </p>
-	
-					<p align="center">
-						<input type="submit" id="submit" value="REGISTRARSE" name="submit"> 
-					</p>
-				</div>
-			</form>
-		</div>
-
-	</div>
-</body>
-</html>	
-
-'''
-
-LOGIN_PAGE_HTML = '''\
-<html>
-	<head>
-		<title> Login </title>
-		<link rel="stylesheet" href="/style/estilo.css" />
-		<meta charset="utf-8">
-	</head>
-	<body class="fondo">
-		<ul>
-			<li class="logo"><img src="/images/QuizLogo2.png"/></li>
-			<li><a href="/">Inicio</a></li>
-			<li class="right"><a href="/SignUp">Registrarse</a></li>
-			<li class="right"><a href="/Login" class="active">Login</a></li>
-		</ul>
-
-		<div style="padding:20px;margin-top:70px;height: 700px">
-
-			<div class="container">
-
-				<form id="login" method="post">
-
-					<div class="header">
-						<h3> LOGIN </h3>
-					</div>
-
-				<div class="sep"> </div>
-
-				<div class="inputs">
-					<p> Username: <input type="text" required name="username" size="21" value="%(username)s" autofocus=""/> </p>
-					<p> Password: <input type="password" required name="pass" size="21" value="%(password)s" /> </p>
-					<p class="error"> %(error)s </p>
-					<p> <input id="submit" value="ENTRAR" type="submit" /> </p>
-				</div>
-				</form>
-			</div>
-
-		</div>
-		
-	</body>
-</html>
-'''
-
-NEW_QUESTION_PAGE_HTML = '''\
-<html>
-<head>
-	<meta charset="utf-8">
-	<title>Añadir pregunta</title>
-	<link rel="stylesheet" href="/style/estilo.css" />
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
-</head>
-<body class="fondo">
-	<ul>
-		<li class="logo"><img src="/images/QuizLogo2.png"/></li>
-		<li><a href="/UserMain">Inicio</a></li>
-		<li><a href="/NuevaPregunta" class="active">Añadir nueva pregunta</a></li>
-		<li><a href="/VerPreguntas">Ver preguntas</a></li>
-		<li class="right"><a href="/Logout">Cerrar sesión</a></li>
-	</ul>
-
-	<div style="padding:20px;margin-top:70px;">
-
-		<div class="container">
-
-			<form id='newQuestion' name='newQuestion' method="post">
-
-				<div class="header">
-					<h3> AÑADIR PREGUNTA </h3>
-				</div>
-
-				<div class="sep"></div>
-
-				<div class="inputs">
-
-					Enunciado: <input type="text" name="enunciado" value="%(enunciado)s" required autofocus=""> <br> 
-					<p class="error"> %(enunciado_error)s </p> 
-
-					Opción 1: <input type="text" id="opcion1" name="opcion1" value="%(opcionUno)s" required > <br>
-					<p class="error"> %(opcionUno_error)s </p>
-
-					Opción 2: <input type="text" id="opcion2" name="opcion2" value="%(opcionDos)s" required > <br>
-					<p class="error"> %(opcionDos_error)s </p>
-
-					Opción 3: <input type="text" id="opcion3" name="opcion3" value="%(opcionTres)s" required > <br>
-					<p class="error"> %(opcionTres_error)s </p>
-
-					Selecciona cuál será la opción correcta:
-					<select name="opcionCorrecta" id="opcionCorrecta">
-						<option value="OpcionUno"> Opción 1 </option>
-						<option value="OpcionDos"> Opción 2 </option>
-						<option value="OpcionTres"> Opción 3 </option>
-					</select>
-
-					Tema de la pregunta: <input type="text" id="tema" name="tema" value="%(tema)s" required > <br>
-					<p class="error"> %(tema_error)s </p>
-
-					<p class="error"> %(error_general)s </p>
-
-					<p align="center">
-						<input type="submit" id="submit" value="AÑADIR PREGUNTA" name="submit"> 
-					</p>
-				</div>
-			</form>
-		</div>
-
-	</div>
-</body>
-</html>	
-
-'''
-
-
 class Usuario(ndb.Model):
 	nombre = ndb.StringProperty()
 	email = ndb.StringProperty()
@@ -281,11 +113,12 @@ class MainHandler(session_module.BaseSessionHandler):
 				self.redirect("/ElegirTema")
 
 class SignUpHandler(session_module.BaseSessionHandler):
-	def write_form(self, username="", password="", verify="", email="", username_error="", password_error="", verify_error="", email_error="", signup_error=""):
-		self.response.write(REGISTER_PAGE_HTML_2 %{"username" : username, "password" : password, "verify" : verify, "email" : email, "username_error" : username_error, "password_error" : password_error, "verify_error" : verify_error, "email_error" : email_error, "signup_error" : signup_error})
+	def write_signup(self, username="", password="", verify="", email="", username_error="", password_error="", verify_error="", email_error="", signup_error=""):
+		signup = jinja_env.get_template("templates/registro.html")
+		self.response.write(signup.render({"username" : username, "password" : password, "verify" : verify, "email" : email, "username_error" : username_error, "password_error" : password_error, "verify_error" : verify_error, "email_error" : email_error, "signup_error" : signup_error}))
 	
 	def get(self):
-		self.write_form()
+		self.write_signup()
 
 	def post(self):
 
@@ -333,7 +166,7 @@ class SignUpHandler(session_module.BaseSessionHandler):
 			error = True
 
 		if error:
-			self.write_form(sani_username, sani_password, sani_verify, sani_email, username_error, password_error, verify_error, email_error)
+			self.write_signup(sani_username, sani_password, sani_verify, sani_email, username_error, password_error, verify_error, email_error)
 		else:
 			user = Usuario.query(Usuario.nombre == user_username, Usuario.email == user_email).count()
 			if user == 0:
@@ -346,19 +179,21 @@ class SignUpHandler(session_module.BaseSessionHandler):
 				self.redirect("/UserMain")
 			else:
 				signup_error = "Kaixo: %s <br/> Ya estabas fichad@" %user_username
-				self.write_form(sani_username, sani_password, sani_verify, sani_email, username_error, password_error, verify_error, email_error, signup_error)
+				self.write_signup(sani_username, sani_password, sani_verify, sani_email, username_error, password_error, verify_error, email_error, signup_error)
 
 
 class LoginHandler(session_module.BaseSessionHandler):
-	def write_login_form(self, username="", password="", error=""):
-		self.response.write(LOGIN_PAGE_HTML %{"username" : username, "password" : password, "error" : error})
+	def write_login(self, username="", password="", error=""):
+		login = jinja_env.get_template("templates/login.html")
+		self.response.write(login.render({"username" : username, "password" : password, "error" : error}))
 	
 	def get(self):
 		if (self.session.get('redirect')):
 			del self.session['redirect']
-			self.response.write(LOGIN_PAGE_HTML %{"username" : "", "password" : "", "error" : "Debes iniciar sesión para acceder."})
+			login = jinja_env.get_template("templates/login.html")
+			self.response.write(login.render({"username" : "", "password" : "", "error" : "Debes iniciar sesión para acceder."}))
 		else:
-			self.write_login_form()
+			self.write_login()
 
 	def post(self):
 
@@ -371,7 +206,7 @@ class LoginHandler(session_module.BaseSessionHandler):
 		user = Usuario.query(Usuario.nombre == user_username, Usuario.password == user_password).count()
 		if user == 0:
 			error = "Credenciales incorrectas"
-			self.write_login_form(user_username, user_password, error)
+			self.write_login(user_username, user_password, error)
 		else:
 			self.session['user']=user_username
 			self.redirect("/UserMain")
@@ -383,7 +218,8 @@ class LogoutHandler(session_module.BaseSessionHandler):
 
 class NewQuestionHandler(session_module.BaseSessionHandler):
 	def write_question_form(self, enunciado="", opcionUno="", opcionDos="", opcionTres="", tema="", enunciado_error="", opcionUno_error="", opcionDos_error="", opcionTres_error="", tema_error = "", error_general=""):
-		self.response.write(NEW_QUESTION_PAGE_HTML %{"enunciado" : enunciado, "opcionUno" : opcionUno, "opcionDos" : opcionDos, "opcionTres" : opcionTres, "tema" : tema, "enunciado_error" : enunciado_error, "opcionUno_error" : opcionUno_error, "opcionDos_error" : opcionDos_error, "opcionTres_error" : opcionTres_error, "tema_error" : tema_error,"error_general" : error_general})
+		newQuestionForm = jinja_env.get_template("templates/nueva_pregunta.html")
+		self.response.write(newQuestionForm.render({"enunciado" : enunciado, "opcionUno" : opcionUno, "opcionDos" : opcionDos, "opcionTres" : opcionTres, "tema" : tema, "enunciado_error" : enunciado_error, "opcionUno_error" : opcionUno_error, "opcionDos_error" : opcionDos_error, "opcionTres_error" : opcionTres_error, "tema_error" : tema_error,"error_general" : error_general}))
 	
 	def get(self):
 		if (self.session.get('user')):
