@@ -71,10 +71,10 @@ REGISTER_PAGE_HTML_2 = '''\
 
 					<p class="error"> %(signup_error)s </p>
 
-					Username(*): <input type="text" name="username" value="%(username)s" placeholder="Tu nombre..." required autofocus=""> <br> 
+					Username(*): <input type="text" name="username" value="%(username)s" placeholder="Tu nombre..." autofocus=""> <br> 
 					<p class="error"> %(username_error)s </p> 
 
-					Email(*): <input type="text" id="correo" name="email" value="%(email)s" required placeholder="Tu email..." > <br>
+					Email(*): <input type="text" id="correo" name="email" value="%(email)s" placeholder="Tu email..." > <br>
 					<p class="error"> %(email_error)s </p>
 
 					Password(*): <input type="password" id="password" name="password" value="%(password)s" autocomplete="off"> <br>
@@ -206,6 +206,7 @@ NEW_QUESTION_PAGE_HTML = '''\
 
 '''
 
+
 class Usuario(ndb.Model):
 	nombre = ndb.StringProperty()
 	email = ndb.StringProperty()
@@ -219,6 +220,18 @@ class Pregunta(ndb.Model):
 	resp3 = ndb.StringProperty()
 	respCorrecta = ndb.StringProperty()
 	tema = ndb.StringProperty()
+	creado = ndb.DateTimeProperty(auto_now_add = True)
+
+class Tema(ndb.Model):
+	nombre = ndb.StringProperty()
+	numPreg = ndb.IntegerProperty()
+	creado = ndb.DateTimeProperty(auto_now_add = True)
+
+class Anonimo(ndb.Model):
+	nick = ndb.StringProperty()
+	pregCorrectas = ndb.IntegerProperty()
+	pregFalladas = ndb.IntegerProperty()
+	creado = ndb.DateTimeProperty(auto_now_add = True)
 
 class UserMainHandler(session_module.BaseSessionHandler):
 	def get(self):
@@ -231,9 +244,41 @@ class UserMainHandler(session_module.BaseSessionHandler):
 			self.redirect('/Login')
 
 class MainHandler(session_module.BaseSessionHandler):
-	def get(self):
+	def write_main(self, nick="", nick_error=""):
 		main = jinja_env.get_template("templates/main.html")
-		self.response.write(main.render())
+		self.response.write(main.render({"nick" : nick, "nick_error" : nick_error}))
+
+	def get(self):
+		self.write_main()
+
+	def post(self):
+		def escape_html(s):
+			return cgi.escape(s, quote=True)
+
+		anonimo_nick = self.request.get('nick')
+		sani_nick = escape_html(anonimo_nick)
+		nick_error = ""
+
+		error = False
+		if not anonimo_nick:
+			nick_error = "Debes introducir un nick"
+			error = True
+
+		if error:
+			self.write_main(anonimo_nick, nick_error)
+		else:
+			anonimo = Anonimo.query(Anonimo.nick == anonimo_nick).count()
+			if anonimo == 0:
+				a = Anonimo()
+				a.nick = anonimo_nick
+				a.pregCorrectas = 0
+				a.pregFalladas = 0
+				a.put()
+				self.session['anonimo'] = anonimo_nick
+				self.redirect("/ElegirTema")
+			else:
+				self.session['anonimo'] = anonimo_nick
+				self.redirect("/ElegirTema")
 
 class SignUpHandler(session_module.BaseSessionHandler):
 	def write_form(self, username="", password="", verify="", email="", username_error="", password_error="", verify_error="", email_error="", signup_error=""):
@@ -341,10 +386,14 @@ class NewQuestionHandler(session_module.BaseSessionHandler):
 		self.response.write(NEW_QUESTION_PAGE_HTML %{"enunciado" : enunciado, "opcionUno" : opcionUno, "opcionDos" : opcionDos, "opcionTres" : opcionTres, "tema" : tema, "enunciado_error" : enunciado_error, "opcionUno_error" : opcionUno_error, "opcionDos_error" : opcionDos_error, "opcionTres_error" : opcionTres_error, "tema_error" : tema_error,"error_general" : error_general})
 	
 	def get(self):
-		self.write_question_form()
-		if self.session.get('preguntaCreada'):
-			del self.session['preguntaCreada']
-			self.response.write("<h1> Pregunta añadida </h1>")
+		if (self.session.get('user')):
+			self.write_question_form()
+			if self.session.get('preguntaCreada'):
+				del self.session['preguntaCreada']
+				self.response.write("Pregunta añadida")
+		else:
+			self.session['redirect'] = "SI"
+			self.redirect('/Login')
 
 	def post(self):
 		def escape_html(s):
@@ -386,7 +435,7 @@ class NewQuestionHandler(session_module.BaseSessionHandler):
 			error = True
 
 		if error:
-			self.write_form(sani_enunciado, sani_opcionUno, sani_opcionDos, sani_opcionTres, sani_tema, enunciado_error, opcionUno_error, opcionDos_error, opcionTres_error, tema_error, error_general)
+			self.write_question_form(sani_enunciado, sani_opcionUno, sani_opcionDos, sani_opcionTres, sani_tema, enunciado_error, opcionUno_error, opcionDos_error, opcionTres_error, tema_error, error_general)
 		else:
 			pregunta = Pregunta.query(Pregunta.enunciado == q_enunciado).count()
 			if pregunta == 0:
@@ -398,17 +447,44 @@ class NewQuestionHandler(session_module.BaseSessionHandler):
 				p.respCorrecta = q_opcionCorrecta 
 				p.tema = q_tema
 				p.put()
+				tema = Tema.query(Tema.nombre == q_tema).count()
+				if tema == 0:
+					t = Tema()
+					t.nombre = q_tema
+					t.numPreg = 1
+					t.put()
+				else:
+					t = Tema.query(Tema.nombre == q_tema).get()
+					num = t.numPreg
+					t.numPreg = num + 1
+					t.put()
 				self.session['preguntaCreada']="SI"
 				self.redirect("/NuevaPregunta")
 			else:
 				error_general = "Ya había una pregunta con este enunciado. Inténtalo con una nueva."
-				self.write_form(sani_username, sani_password, sani_verify, sani_email, username_error, password_error, verify_error, email_error, signup_error)
+				self.write_question_form(sani_enunciado, sani_opcionUno, sani_opcionDos, sani_opcionTres, sani_tema, enunciado_error, opcionUno_error, opcionDos_error, opcionTres_error, tema_error, error_general)
 
 class VerPreguntasHandler(session_module.BaseSessionHandler):
 	def get(self):
-		verPreg = jinja_env.get_template("templates/ver_preguntas.html")
-		preguntas = Pregunta.query()
-		self.response.write(verPreg.render({'preguntas' : preguntas}))
+		if (self.session.get('user')):
+			verPreg = jinja_env.get_template("templates/ver_preguntas.html")
+			preguntas = Pregunta.query()
+			self.response.write(verPreg.render({'preguntas' : preguntas}))
+		else:
+			self.session['redirect'] = "SI"
+			self.redirect('/Login')
+
+class DeleteQuestionsHandler(session_module.BaseSessionHandler):
+	def get(self):
+		ndb.delete_multi(Pregunta.query().iter(keys_only = True))
+		ndb.delete_multi(Tema.query().iter(keys_only = True))
+		self.redirect('/VerPreguntas')
+
+class ElegirTemaHandler(session_module.BaseSessionHandler):
+	def get(self):
+		elegirTema = jinja_env.get_template("templates/elegir_tema.html")
+		temas = Tema.query()
+		self.response.write(elegirTema.render({"temas" : temas}))
 
 app = webapp2.WSGIApplication([
 	('/', MainHandler),
@@ -417,5 +493,7 @@ app = webapp2.WSGIApplication([
 	('/UserMain', UserMainHandler),
 	('/Logout' , LogoutHandler),
 	('/NuevaPregunta', NewQuestionHandler),
-	('/VerPreguntas', VerPreguntasHandler)
+	('/VerPreguntas', VerPreguntasHandler),
+	('/EliminarPreguntas', DeleteQuestionsHandler),
+	('/ElegirTema', ElegirTemaHandler)
 ], config=session_module.myconfig_dict, debug=True)

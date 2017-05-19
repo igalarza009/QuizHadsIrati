@@ -53,7 +53,7 @@ li a:hover:not(.active) {
     border-bottom: 4px solid #ff4058;
 }
 
-/*CSS REGISTRO/LOGIN*/
+/*CSS FORMULARIOS*/
 
 body.fondo{
     /*background-image: linear-gradient(135deg, rgba(250,235,240,1) 0%, rgba(252,214,228,1) 47%, rgba(250,173,194,1) 81%, rgba(252,119,156,1) 100%);*/
@@ -73,7 +73,7 @@ body.fondo{
 }
 
 
-#registro, #login, #newQuestion {
+#registro, #login, #newQuestion, #jugar {
     padding: 0px 25px 25px;
     background: #fff;
     box-shadow: 
@@ -100,7 +100,7 @@ body.fondo{
 
 h1 {
     color: #ff4058;
-    font-size: 26px;
+    font-size: 24px;
     font-weight: bold;
     margin-top: 15px;
     margin-bottom: 15px;
@@ -108,7 +108,7 @@ h1 {
 }
 
 
-#registro .sep, #login .sep, #newQuestion .sep {
+.sep{
     height: 1px;
     background: #e8e8e8;
     width: 406px;
@@ -149,8 +149,7 @@ h1 {
     font-size:15px;
 }
 
-#registro .inputs #submit {
-
+.inputs #submit {
     background: #ff4058;
     box-shadow: 0px 2px 10px 2px #ff7284;
     border-radius: 8px;
@@ -165,58 +164,28 @@ h1 {
     margin-top: 20px;
     margin-bottom: 20px;
     cursor: pointer;
-
 }
 
-#registro .inputs #submit:hover {
+.inputs #submit:hover {
     background:#ff1a38;
+}
+
+#registro .inputs #submit {
+    margin-left: 90px;
 }
 
 #login .inputs #submit {
-
-    background: #ff4058;
-    box-shadow: 0px 2px 10px 2px #ff7284;
-    border-radius: 8px;
-    padding: 15px 30px;
-    border: none;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    position: relative;  
-    float: left;
-    margin-left: 112px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    cursor: pointer;
-
+   margin-left: 112px;
 }
 
-#login .inputs #submit:hover {
-    background:#ff1a38;
+#jugar .inputs #submit {
+   margin-left: 115px;
 }
 
 #newQuestion .inputs #submit {
-
-    background: #ff4058;
-    box-shadow: 0px 2px 10px 2px #ff7284;
-    border-radius: 8px;
-    padding: 15px 30px;
-    border: none;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    position: relative;  
-    float: left;
     margin-left: 65px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    cursor: pointer;
-
 }
 
-#newQuestion .inputs #submit:hover {
-    background:#ff1a38;
-}
 
 #registro .inputs img{
     margin-left: 95px;
@@ -272,14 +241,31 @@ th{
 }
 
 td{
-    width: 200px; 
+    width: 300px; 
     text-align: center; 
-    font: 110% serif;
-    background-color: #ffe6e9; 
+    font: 110%;
+    background-color: white; 
     height: 50px;
     vertical-align: middle;
+    font-family: 'Open Sans', sans-serif;
 }
 
 tr:hover td{
-    background-color: #ffccd3;
+    background-color: #ffe6e9;
+}
+
+td a.button{
+    padding: 8px 12px;
+    text-decoration: none;
+    background: #00b359;
+    box-shadow: 0px 2px 8px 2px #ffccdd;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+td a.button:hover{
+    background: #00994d;
 }
