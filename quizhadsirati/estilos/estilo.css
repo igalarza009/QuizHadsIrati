@@ -73,7 +73,7 @@ body.fondo{
 }
 
 
-#registro, #login {
+#registro, #login, #newQuestion {
     padding: 0px 25px 25px;
     background: #fff;
     box-shadow: 
@@ -98,7 +98,17 @@ body.fondo{
     margin-bottom: 15px;
 }
 
-#registro .sep, #login .sep {
+h1 {
+    color: #ff4058;
+    font-size: 26px;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+
+#registro .sep, #login .sep, #newQuestion .sep {
     height: 1px;
     background: #e8e8e8;
     width: 406px;
@@ -185,6 +195,29 @@ body.fondo{
     background:#ff1a38;
 }
 
+#newQuestion .inputs #submit {
+
+    background: #ff4058;
+    box-shadow: 0px 2px 10px 2px #ff7284;
+    border-radius: 8px;
+    padding: 15px 30px;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    position: relative;  
+    float: left;
+    margin-left: 65px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+
+}
+
+#newQuestion .inputs #submit:hover {
+    background:#ff1a38;
+}
+
 #registro .inputs img{
     margin-left: 95px;
     width: 150px;
@@ -225,55 +258,28 @@ div.right{
 /*ESTILO DE LAS TABLAS*/
 
 table{
-	margin: 0 auto;
+    margin: 0 auto;
 }
 
 th{
-	width: 200px; 
-	text-align: center; 
-	font: small-caps bold 120% serif;
-	color: white;
-	background-color: #ff4058; 
-	height: 35px;
+    width: 200px; 
+    text-align: center; 
+    font: small-caps bold 120% serif;
+    color: white;
+    background-color: #ff4058;
+    height: 35px;
     vertical-align: middle;
 }
 
 td{
-	width: 200px; 
-	text-align: center; 
-	font: 110% serif;
-	color: #ff4058;
-	background-color: white;
-	/*background-color: #FFE6E9;*/	
-	height: 50px;
+    width: 200px; 
+    text-align: center; 
+    font: 110% serif;
+    background-color: #ffe6e9; 
+    height: 50px;
     vertical-align: middle;
 }
 
-#table div.delete a{
-    padding: 8px 12px;
-    font-size: 15px;
-}
-
-#table div.delete a:hover td{
-    background: #ffccd3;
-}
-
-#table div.accept a{
-    padding: 8px 12px;
-    text-decoration: none;
-    background: #cc0044;
-    box-shadow: 0px 2px 8px 2px #ffccdd;
-    border-radius: 8px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 15px;
-}
-
-#table div.accept a:hover{
-    background: #990033;
-}
-
-#table div.accept img{
-    vertical-align: bottom;
+tr:hover td{
+    background-color: #ffccd3;
 }

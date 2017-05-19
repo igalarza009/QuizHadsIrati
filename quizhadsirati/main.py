@@ -17,21 +17,33 @@
 #
 import webapp2
 from webapp2_extras import sessions
+
 import session_module
 from google.appengine.api import users
 from google.appengine.ext import ndb
+
 import cgi
+import os
 import re
 import sys
 
+import jinja2
+import base64
+
 reload(sys)
 sys.setdefaultencoding('utf8')
+
+# Jinja Environment instance necessary to use Jinja templates.
+jinja_env = jinja2.Environment(
+	loader=jinja2.FileSystemLoader(os.path.dirname(__file__)), 
+	autoescape=True)
+jinja_env.filters['b64encode'] = base64.b64encode
 
 REGISTER_PAGE_HTML_2 = '''\
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Irania</title>
+	<title>Registro</title>
 	<link rel="stylesheet" href="/style/estilo.css" />
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
 </head>
@@ -62,12 +74,8 @@ REGISTER_PAGE_HTML_2 = '''\
 					Username(*): <input type="text" name="username" value="%(username)s" placeholder="Tu nombre..." required autofocus=""> <br> 
 					<p class="error"> %(username_error)s </p> 
 
-					<br/>
-
 					Email(*): <input type="text" id="correo" name="email" value="%(email)s" required placeholder="Tu email..." > <br>
 					<p class="error"> %(email_error)s </p>
-
-					<br/>
 
 					Password(*): <input type="password" id="password" name="password" value="%(password)s" autocomplete="off"> <br>
 					<p class="error"> %(password_error)s </p>
@@ -130,33 +138,72 @@ LOGIN_PAGE_HTML = '''\
 </html>
 '''
 
-MAIN_PAGE_HTML = '''\
+NEW_QUESTION_PAGE_HTML = '''\
 <html>
-	<head>
-		<title> Inicio </title>
-		<link rel="stylesheet" href="/style/estilo.css" />
-		<meta charset="utf-8">
-	</head>
-	<body class="fondo">
-		<ul>
-			<li class="logo"><img src="/images/QuizLogo2.png"/></li>
-			<li><a href="/" class="active">Inicio</a></li>
-			<li class="right"><a href="/SignUp">Registrarse</a></li>
-			<li class="right"><a href="/Login">Login</a></li>
-		</ul>
+<head>
+	<meta charset="utf-8">
+	<title>Añadir pregunta</title>
+	<link rel="stylesheet" href="/style/estilo.css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
+</head>
+<body class="fondo">
+	<ul>
+		<li class="logo"><img src="/images/QuizLogo2.png"/></li>
+		<li><a href="/UserMain">Inicio</a></li>
+		<li><a href="/NuevaPregunta" class="active">Añadir nueva pregunta</a></li>
+		<li><a href="/VerPreguntas">Ver preguntas</a></li>
+		<li class="right"><a href="/Logout">Cerrar sesión</a></li>
+	</ul>
 
-		<div style="padding:20px;margin-top:70px;height: 700px">
+	<div style="padding:20px;margin-top:70px;">
 
-			<div class="container">
+		<div class="container">
 
-				<h1> Hola hola </h1>
+			<form id='newQuestion' name='newQuestion' method="post">
 
-			</div>
+				<div class="header">
+					<h3> AÑADIR PREGUNTA </h3>
+				</div>
 
+				<div class="sep"></div>
+
+				<div class="inputs">
+
+					Enunciado: <input type="text" name="enunciado" value="%(enunciado)s" required autofocus=""> <br> 
+					<p class="error"> %(enunciado_error)s </p> 
+
+					Opción 1: <input type="text" id="opcion1" name="opcion1" value="%(opcionUno)s" required > <br>
+					<p class="error"> %(opcionUno_error)s </p>
+
+					Opción 2: <input type="text" id="opcion2" name="opcion2" value="%(opcionDos)s" required > <br>
+					<p class="error"> %(opcionDos_error)s </p>
+
+					Opción 3: <input type="text" id="opcion3" name="opcion3" value="%(opcionTres)s" required > <br>
+					<p class="error"> %(opcionTres_error)s </p>
+
+					Selecciona cuál será la opción correcta:
+					<select name="opcionCorrecta" id="opcionCorrecta">
+						<option value="OpcionUno"> Opción 1 </option>
+						<option value="OpcionDos"> Opción 2 </option>
+						<option value="OpcionTres"> Opción 3 </option>
+					</select>
+
+					Tema de la pregunta: <input type="text" id="tema" name="tema" value="%(tema)s" required > <br>
+					<p class="error"> %(tema_error)s </p>
+
+					<p class="error"> %(error_general)s </p>
+
+					<p align="center">
+						<input type="submit" id="submit" value="AÑADIR PREGUNTA" name="submit"> 
+					</p>
+				</div>
+			</form>
 		</div>
-		
-	</body>
-</html>
+
+	</div>
+</body>
+</html>	
+
 '''
 
 class Usuario(ndb.Model):
@@ -165,14 +212,28 @@ class Usuario(ndb.Model):
 	password = ndb.StringProperty(indexed=True)
 	creado = ndb.DateTimeProperty(auto_now_add = True)
 
-class WelcomeHandler(session_module.BaseSessionHandler):
+class Pregunta(ndb.Model):
+	enunciado = ndb.StringProperty()
+	resp1 = ndb.StringProperty()
+	resp2 = ndb.StringProperty()
+	resp3 = ndb.StringProperty()
+	respCorrecta = ndb.StringProperty()
+	tema = ndb.StringProperty()
+
+class UserMainHandler(session_module.BaseSessionHandler):
 	def get(self):
-		user_username = self.session.get('user')
-		self.response.write('<h1> Bienvenid@ %s !!</h1>' %user_username)
+		if (self.session.get('user')):
+			user_username = self.session.get('user')
+			userMain = jinja_env.get_template("templates/user_main.html")
+			self.response.write(userMain.render({'welcome' : user_username}))
+		else:
+			self.session['redirect'] = "SI"
+			self.redirect('/Login')
 
 class MainHandler(session_module.BaseSessionHandler):
 	def get(self):
-		self.response.out.write(MAIN_PAGE_HTML)
+		main = jinja_env.get_template("templates/main.html")
+		self.response.write(main.render())
 
 class SignUpHandler(session_module.BaseSessionHandler):
 	def write_form(self, username="", password="", verify="", email="", username_error="", password_error="", verify_error="", email_error="", signup_error=""):
@@ -237,7 +298,7 @@ class SignUpHandler(session_module.BaseSessionHandler):
 				u.password = user_password
 				u.put()
 				self.session['user']=user_username
-				self.redirect("/Welcome")
+				self.redirect("/UserMain")
 			else:
 				signup_error = "Kaixo: %s <br/> Ya estabas fichad@" %user_username
 				self.write_form(sani_username, sani_password, sani_verify, sani_email, username_error, password_error, verify_error, email_error, signup_error)
@@ -248,7 +309,11 @@ class LoginHandler(session_module.BaseSessionHandler):
 		self.response.write(LOGIN_PAGE_HTML %{"username" : username, "password" : password, "error" : error})
 	
 	def get(self):
-		self.write_login_form()
+		if (self.session.get('redirect')):
+			del self.session['redirect']
+			self.response.write(LOGIN_PAGE_HTML %{"username" : "", "password" : "", "error" : "Debes iniciar sesión para acceder."})
+		else:
+			self.write_login_form()
 
 	def post(self):
 
@@ -264,12 +329,93 @@ class LoginHandler(session_module.BaseSessionHandler):
 			self.write_login_form(user_username, user_password, error)
 		else:
 			self.session['user']=user_username
-			self.redirect("/Welcome")
+			self.redirect("/UserMain")
 
+class LogoutHandler(session_module.BaseSessionHandler):
+	def get(self):
+		del self.session['user']
+		self.redirect('/')
+
+class NewQuestionHandler(session_module.BaseSessionHandler):
+	def write_question_form(self, enunciado="", opcionUno="", opcionDos="", opcionTres="", tema="", enunciado_error="", opcionUno_error="", opcionDos_error="", opcionTres_error="", tema_error = "", error_general=""):
+		self.response.write(NEW_QUESTION_PAGE_HTML %{"enunciado" : enunciado, "opcionUno" : opcionUno, "opcionDos" : opcionDos, "opcionTres" : opcionTres, "tema" : tema, "enunciado_error" : enunciado_error, "opcionUno_error" : opcionUno_error, "opcionDos_error" : opcionDos_error, "opcionTres_error" : opcionTres_error, "tema_error" : tema_error,"error_general" : error_general})
+	
+	def get(self):
+		self.write_question_form()
+		if self.session.get('preguntaCreada'):
+			del self.session['preguntaCreada']
+			self.response.write("<h1> Pregunta añadida </h1>")
+
+	def post(self):
+		def escape_html(s):
+			return cgi.escape(s, quote=True)
+
+		q_enunciado = self.request.get('enunciado')
+		q_opcionUno = self.request.get('opcion1')
+		q_opcionDos = self.request.get('opcion2')
+		q_opcionTres = self.request.get('opcion3')
+		q_opcionCorrecta = self.request.get('opcionCorrecta')
+		q_tema = self.request.get('tema')
+		sani_enunciado = escape_html(q_enunciado)
+		sani_opcionUno = escape_html(q_opcionUno)
+		sani_opcionDos = escape_html(q_opcionDos)
+		sani_opcionTres = escape_html(q_opcionTres)
+		sani_tema = escape_html(q_tema)
+		enunciado_error = ""
+		opcionUno_error = ""
+		opcionDos_error = ""
+		opcionTres_error = ""
+		tema_error = ""
+		error_general = ""
+
+		error = False
+		if not q_enunciado:
+			enunciado_error = "Debes indicar un enunciado."
+			error = True
+		if not q_opcionUno:
+			opcionUno_error = "Debes indicar tres opciones obligatoriamente."
+			error = True
+		if not q_opcionDos:
+			opcionDos_error = "Debes indicar tres opciones obligatoriamente."
+			error = True
+		if not q_opcionTres:
+			opcionTres_error = "Debes indicar tres opciones obligatoriamente."
+			error = True
+		if not q_tema:
+			tema_error = "Debes indicar el tema de la pregunta."
+			error = True
+
+		if error:
+			self.write_form(sani_enunciado, sani_opcionUno, sani_opcionDos, sani_opcionTres, sani_tema, enunciado_error, opcionUno_error, opcionDos_error, opcionTres_error, tema_error, error_general)
+		else:
+			pregunta = Pregunta.query(Pregunta.enunciado == q_enunciado).count()
+			if pregunta == 0:
+				p = Pregunta()
+				p.enunciado = q_enunciado
+				p.resp1 = q_opcionUno
+				p.resp2 = q_opcionDos
+				p.resp3 = q_opcionTres
+				p.respCorrecta = q_opcionCorrecta 
+				p.tema = q_tema
+				p.put()
+				self.session['preguntaCreada']="SI"
+				self.redirect("/NuevaPregunta")
+			else:
+				error_general = "Ya había una pregunta con este enunciado. Inténtalo con una nueva."
+				self.write_form(sani_username, sani_password, sani_verify, sani_email, username_error, password_error, verify_error, email_error, signup_error)
+
+class VerPreguntasHandler(session_module.BaseSessionHandler):
+	def get(self):
+		verPreg = jinja_env.get_template("templates/ver_preguntas.html")
+		preguntas = Pregunta.query()
+		self.response.write(verPreg.render({'preguntas' : preguntas}))
 
 app = webapp2.WSGIApplication([
-	('/Welcome', WelcomeHandler),
 	('/', MainHandler),
 	('/SignUp', SignUpHandler),
 	('/Login', LoginHandler),
+	('/UserMain', UserMainHandler),
+	('/Logout' , LogoutHandler),
+	('/NuevaPregunta', NewQuestionHandler),
+	('/VerPreguntas', VerPreguntasHandler)
 ], config=session_module.myconfig_dict, debug=True)

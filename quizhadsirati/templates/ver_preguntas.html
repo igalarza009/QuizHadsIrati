@@ -1,0 +1,43 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Ver preguntas</title>
+	<link rel="stylesheet" href="/style/estilo.css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
+</head>
+<body class="fondo">
+	<ul>
+		<li class="logo"><img src="/images/QuizLogo2.png"/></li>
+		<li><a href="/UserMain">Inicio</a></li>
+		<li><a href="/NuevaPregunta">Añadir nueva pregunta</a></li>
+		<li><a href="/VerPreguntas" class="active">Ver preguntas</a></li>
+		<li class="right"><a href="/Logout">Cerrar sesión</a></li>
+	</ul>
+
+	<div style="padding:20px;margin-top:70px;">
+
+		<div class="preguntas">
+		
+			<h1>Preguntas: </h1>
+			<table>
+				<tr>
+					<th> Enunciado  </th><th> Opción 1</th><th> Opción 2 </th><th> Opción 3 </th><th> Opción Correcta </th><th> Tema </th>
+				</tr>
+				{% for p in preguntas %}
+				<tr>
+					<td> {{p.enunciado}} </td>
+					<td> {{p.resp1}}  </td>
+					<td> {{p.resp2}}  </td>
+					<td> {{p.resp3}}  </td>
+					<td> {{ 'Opcíón 1' if p.respCorrecta == 'OpcionUno' else 'Opción 2' if p.respCorrecta == 'OpcionUno' else 'Opción 3'}} 
+					</td>
+					<td> {{p.tema}}  </td>
+				</tr>
+				{% endfor %}
+			</table>
+
+		</div>
+
+	</div>
+</body>
+</html>	
