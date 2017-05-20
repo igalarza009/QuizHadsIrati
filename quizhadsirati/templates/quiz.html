@@ -1,0 +1,55 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Quiz {{tema}}</title>
+	<link rel="stylesheet" href="/style/estilo.css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
+</head>
+<body class="fondo">
+	<ul>
+		<li class="logo"><img src="/images/QuizLogo2.png"/></li>
+		<li><a href="/Quiz" class="active">Jugando...</a></li>
+		<li class="right"><a href="/......">Finalizar Quiz</a></li>
+	</ul>
+
+	<div style="padding:20px;margin-top:70px;">
+
+		<div class="container-quiz">
+
+			<form id='quiz' name='quiz' method="post">
+
+				<div class="header">
+					<h3> QUIZ! </h3>
+					<h4> Tema: {{tema}} </h4>
+				</div>
+
+				<div class="sep-quiz-header"></div>
+
+				<div class="inputs">
+
+					{% set count = 1 %}
+					{% for p in preguntas %}
+
+						<p class="enunciado"> {{count}}. {{p.enunciado}} </p>
+
+						<p>&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="{{p.cod}}" value="opcionUno"> {{p.resp1}} </input></p>
+						<p>&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="{{p.cod}}" value="opcionDos"> {{p.resp2}} </input></p>
+						<p>&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="{{p.cod}}" value="opcionTres"> {{p.resp3}} </input></p>
+
+						<br/>
+
+						<div class="sep-quiz"></div>
+						{% set count = count + 1 %}
+
+					{% endfor %}
+
+					<p align="center">
+						<input type="submit" id="submit" value="ENVIAR RESPUESTAS" name="submit"> 
+					</p>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</body>
+</html>	

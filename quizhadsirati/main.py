@@ -46,6 +46,7 @@ class Usuario(ndb.Model):
 	creado = ndb.DateTimeProperty(auto_now_add = True)
 
 class Pregunta(ndb.Model):
+	cod = ndb.StringProperty()
 	enunciado = ndb.StringProperty()
 	resp1 = ndb.StringProperty()
 	resp2 = ndb.StringProperty()
@@ -282,6 +283,8 @@ class NewQuestionHandler(session_module.BaseSessionHandler):
 				p.resp3 = q_opcionTres
 				p.respCorrecta = q_opcionCorrecta 
 				p.tema = q_tema
+				num = Pregunta.query().count() + 1
+				p.cod = "preg%i" %num
 				p.put()
 				tema = Tema.query(Tema.nombre == q_tema).count()
 				if tema == 0:
@@ -304,7 +307,7 @@ class VerPreguntasHandler(session_module.BaseSessionHandler):
 	def get(self):
 		if (self.session.get('user')):
 			verPreg = jinja_env.get_template("templates/ver_preguntas.html")
-			preguntas = Pregunta.query()
+			preguntas = Pregunta.query().order(Pregunta.cod)
 			self.response.write(verPreg.render({'preguntas' : preguntas}))
 		else:
 			self.session['redirect'] = "SI"
@@ -322,6 +325,14 @@ class ElegirTemaHandler(session_module.BaseSessionHandler):
 		temas = Tema.query()
 		self.response.write(elegirTema.render({"temas" : temas}))
 
+class QuizHandler(session_module.BaseSessionHandler):
+	def get(self):
+		tema = self.request.get('tema')
+		preguntas = Pregunta.query(Pregunta.tema == tema).order(Pregunta.cod)
+		quiz = jinja_env.get_template("templates/quiz.html")
+		self.response.write(quiz.render({'preguntas' : preguntas, 'tema' : tema}))
+
+
 app = webapp2.WSGIApplication([
 	('/', MainHandler),
 	('/SignUp', SignUpHandler),
@@ -331,5 +342,6 @@ app = webapp2.WSGIApplication([
 	('/NuevaPregunta', NewQuestionHandler),
 	('/VerPreguntas', VerPreguntasHandler),
 	('/EliminarPreguntas', DeleteQuestionsHandler),
-	('/ElegirTema', ElegirTemaHandler)
+	('/ElegirTema', ElegirTemaHandler),
+	('/Quiz', QuizHandler)
 ], config=session_module.myconfig_dict, debug=True)

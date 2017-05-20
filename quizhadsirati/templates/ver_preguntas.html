@@ -22,7 +22,7 @@
 
 			<table>
 				<tr>
-					<th> Enunciado  </th><th> Opción 1</th><th> Opción 2 </th><th> Opción 3 </th><th> Opción Correcta </th><th> Tema </th>
+					<th> Enunciado  </th><th> Opción 1</th><th> Opción 2 </th><th> Opción 3 </th><th> Respuesta </th><th> Tema </th>
 				</tr>
 				{% for p in preguntas %}
 				<tr>
@@ -30,7 +30,7 @@
 					<td> {{p.resp1}}  </td>
 					<td> {{p.resp2}}  </td>
 					<td> {{p.resp3}}  </td>
-					<td> {{ 'Opcíón 1' if p.respCorrecta == 'OpcionUno' else 'Opción 2' if p.respCorrecta == 'OpcionUno' else 'Opción 3'}} 
+					<td> {{ 'Opcíón 1' if p.respCorrecta == 'OpcionUno' else 'Opción 2' if p.respCorrecta == 'OpcionDos' else 'Opción 3'}} 
 					</td>
 					<td> {{p.tema}}  </td>
 				</tr>
