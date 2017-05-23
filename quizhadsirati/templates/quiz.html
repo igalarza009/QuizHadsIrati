@@ -15,7 +15,12 @@
 						"codPreg" : codPreg
 					},
 					"success": function(result){ 
-						$("#comprobarPreg_" + codPreg).html(result);
+						if (result == 'BIEN'){
+							$("#comprobarPreg_" + codPreg).html('<img src="/images/acierto_2.png" />');
+						}
+						else {
+							$("#comprobarPreg_" + codPreg).html('<img src="/images/fallo_2.png" />');
+						}
 					},
 					"error": function(result){ 
 						console.error("Se ha producido un error:", result);
@@ -28,6 +33,8 @@
 <body class="fondo">
 	<ul>
 		<li class="logo"><img src="/images/QuizLogo2.png"/></li>
+		<li><p class="menu">"{{nick}}" jugando...</p></li>
+		<li class="right"><a class="salir" href="/FinalizarJuego">SALIR</a></li>
 	</ul>
 
 	<div style="padding:20px;margin-top:70px;">
@@ -48,14 +55,15 @@
 					{% set count = 1 %}
 					{% for p in preguntas %}
 
-						<p class="enunciado"> {{count}}. {{p.enunciado}} </p>
+						<p class="enunciado"> {{count}}. {{p.enunciado}} &nbsp; <span id="comprobarPreg_{{p.cod}}"> </span> </p> 
 
 						<p>&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="{{p.cod}}" value="OpcionUno"> {{p.resp1}} </input></p>
 						<p>&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="{{p.cod}}" value="OpcionDos"> {{p.resp2}} </input></p>
 						<p>&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="{{p.cod}}" value="OpcionTres"> {{p.resp3}} </input></p>
 
-						<div class="comprobarPreg" id="comprobarPreg_{{p.cod}}"> <br/></div>
-						<button type="button" onClick="comprobarPreg('{{p.cod}}')"> Comprobar </button>
+						<div style="text-align: center;">
+						<button class="button" type="button" onClick="comprobarPreg('{{p.cod}}')"> Comprobar pregunta</button>
+						</div>
 
 						<br/>
 						<br/>

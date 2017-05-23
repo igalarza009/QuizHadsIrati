@@ -23,6 +23,7 @@
 			)
 		}
 	</script>
+
 </head>
 <body class="fondo" onload="{{onload}}">
 	<ul>
@@ -66,10 +67,8 @@
 						<option value="OpcionTres"> Opción 3 </option>
 					</select>
 
-					Tema de la pregunta: <input type="text" id="tema" name="tema" value="{{tema}}" required > <br>
+					Tema de la pregunta (sin tildes por favor): <input type="text" id="tema" name="tema" value="{{tema}}" required > <br>
 					<p class="error"> {{tema_error}} </p>
-
-					<p class="error"> {{error_general}} </p>
 
 					<p align="center">
 						<input type="submit" id="submit" value="AÑADIR PREGUNTA" name="submit"> 

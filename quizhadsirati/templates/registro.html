@@ -3,8 +3,27 @@
 	<meta charset="utf-8">
 	<title>Registro</title>
 	<link rel="stylesheet" href="/style/estilo.css" />
+	<script src="/sweet/sweetalert2.min.js"></script>
+	<link rel="stylesheet" href="/sweet/sweetalert2.min.css">
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
 	<script type="text/javascript">
+
+		function alertRegistroExito(){
+			swal(
+				'¡Registro completado!', 
+				'El registro se ha completado con éxito.',
+				'success'
+			)
+		}
+
+		function alertUserRepetido(){
+			swal(
+				'Usuario repetido...', 
+				'El usuario que estás intentando registrar ya existía...',
+				'error'
+			)
+		}
+
 
 		$(document).ready(function() {
 	    	$('#correo').change(function(){
@@ -73,7 +92,7 @@
 
 	</script>
 </head>
-<body class="fondo">
+<body class="fondo" onload="{{onload}}">
 	<ul>
 		<li class="logo"><img src="/images/QuizLogo2.png"/></li>
 		<li><a href="/">Inicio</a></li>
@@ -94,8 +113,6 @@
 				<div class="sep"></div>
 
 				<div class="inputs">
-
-					<p class="error"> {{signup_error}} </p>
 
 					Username(*): <input type="text" id="username" name="username" value="{{username}}" placeholder="Tu nombre..." autofocus=""> <br> 
 					<div id="comprobarUser"> {{username_error}} <br/> </div>
