@@ -4,6 +4,74 @@
 	<title>Registro</title>
 	<link rel="stylesheet" href="/style/estilo.css" />
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
+	<script type="text/javascript">
+
+		$(document).ready(function() {
+	    	$('#correo').change(function(){
+				$("#comprobarEmail").html('Comprobando...');
+				var email = $("#correo").val();
+				$.ajax("/comprobarEmail",{
+					"type": "post",
+					"data":{
+						"email" : email
+					},
+					"success": function(result){ 
+						$("#comprobarEmail").html(result);
+					},
+					"error": function(result){ 
+						console.error("Se ha producido un error:", result);
+					}, 
+					"async": true 
+				});
+			});
+			$('#password').change(function(){
+				$("#comprobarPass").html('Comprobando...');
+				var pass = $("#password").val();
+				$.ajax("/comprobarPass",{
+					"type": "post",
+					"data":{
+						"pass" : pass
+					},
+					"success": function(result){ 
+						$("#comprobarPass").html(result);
+					},
+					"error": function(result){ 
+						console.error("Se ha producido un error:", result);
+					}, 
+					"async": true 
+				});
+			});
+			$('#username').change(function(){
+				$("#comprobarUser").html('Comprobando...');
+				var user = $("#username").val();
+				$.ajax("/comprobarUser",{
+					"type": "post",
+					"data":{
+						"user" : user
+					},
+					"success": function(result){ 
+						$("#comprobarUser").html(result);
+					},
+					"error": function(result){ 
+						console.error("Se ha producido un error:", result);
+					}, 
+					"async": true 
+				});
+			});
+			$('#password2').change(function(){
+				$("#comprobarPass2").html('Comprobando...');
+				var pass2 = $("#password2").val();
+				var pass = $("#password").val();
+				if (pass2 !== pass) {
+					$("#comprobarPass2").html('Las passwords no coinciden. Vuelva a intentarlo por favor.');
+				}
+				else{
+					$("#comprobarPass2").html('Las passwords coinciden.');
+				}
+			});
+		});
+
+	</script>
 </head>
 <body class="fondo">
 	<ul>
@@ -29,17 +97,21 @@
 
 					<p class="error"> {{signup_error}} </p>
 
-					Username(*): <input type="text" name="username" value="{{username}}" placeholder="Tu nombre..." autofocus=""> <br> 
-					<p class="error"> {{username_error}} </p> 
+					Username(*): <input type="text" id="username" name="username" value="{{username}}" placeholder="Tu nombre..." autofocus=""> <br> 
+					<div id="comprobarUser"> {{username_error}} <br/> </div>
+					<p class="error">  </p> 
 
-					Email(*): <input type="text" id="correo" name="email" value="{{email}}" placeholder="Tu email..." > <br>
-					<p class="error"> {{email_error}} </p>
+					Email(*): <input type="text" id="correo" name="email" value="{{email}}" placeholder="Tu email..."> <br>
+					<div id="comprobarEmail"> {{email_error}} <br/> </div>
+					<p class="error">  </p>
 
 					Password(*): <input type="password" id="password" name="password" value="{{password}}" autocomplete="off"> <br>
-					<p class="error"> {{password_error}} </p>
+					<div id="comprobarPass"> {{password_error}} <br/> </div>
+					<p class="error">  </p>
 
-					Repite password(*): <input type="password" name="verify" value="{{verify}}" placeholder="La misma contraseña que antes..."> <br>
-					<p class="error"> {{verify_error}} </p>
+					Repite password(*): <input type="password" id="password2" name="verify" value="{{verify}}" placeholder="La misma contraseña que antes..."> <br>
+					<div id="comprobarPass2"> {{verify_error}} <br/> </div>
+					<p class="error">  </p>
 	
 					<p align="center">
 						<input type="submit" id="submit" value="REGISTRARSE" name="submit"> 

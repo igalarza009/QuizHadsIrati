@@ -77,12 +77,22 @@ class UserMainHandler(session_module.BaseSessionHandler):
 			self.redirect('/Login')
 
 class MainHandler(session_module.BaseSessionHandler):
-	def write_main(self, nick="", nick_error=""):
+	def write_main(self, last_nick="", aciertos="", total="", onload="", nick="", nick_error=""):
 		main = jinja_env.get_template("templates/main.html")
-		self.response.write(main.render({"nick" : nick, "nick_error" : nick_error}))
+		self.response.write(main.render({"last_nick" : last_nick, "aciertos" : aciertos, "total" : total, "onload" : onload, "nick" : nick, "nick_error" : nick_error}))
 
 	def get(self):
-		self.write_main()
+		if self.session.get('finJuego'):
+			anon = Anonimo.query(Anonimo.nick == self.session.get('anonimo')).get()
+			aciertosTotales = anon.pregCorrectas
+			fallosTotales = anon.pregFalladas
+			totalPreg = aciertosTotales + fallosTotales
+			nick = anon.nick
+			del self.session['anonimo']
+			del self.session['finJuego']
+			self.write_main(nick, aciertosTotales, totalPreg, "alertFinJuego()", "", "")
+		else:
+			self.write_main()
 
 	def post(self):
 		def escape_html(s):
@@ -98,7 +108,7 @@ class MainHandler(session_module.BaseSessionHandler):
 			error = True
 
 		if error:
-			self.write_main(anonimo_nick, nick_error)
+			self.write_main("", "", "", "", anonimo_nick, nick_error)
 		else:
 			anonimo = Anonimo.query(Anonimo.nick == anonimo_nick).count()
 			if anonimo == 0:
@@ -218,16 +228,13 @@ class LogoutHandler(session_module.BaseSessionHandler):
 		self.redirect('/')
 
 class NewQuestionHandler(session_module.BaseSessionHandler):
-	def write_question_form(self, enunciado="", opcionUno="", opcionDos="", opcionTres="", tema="", enunciado_error="", opcionUno_error="", opcionDos_error="", opcionTres_error="", tema_error = "", error_general=""):
+	def write_question_form(self, onload="", enunciado="", opcionUno="", opcionDos="", opcionTres="", tema="", enunciado_error="", opcionUno_error="", opcionDos_error="", opcionTres_error="", tema_error = "", error_general=""):
 		newQuestionForm = jinja_env.get_template("templates/nueva_pregunta.html")
-		self.response.write(newQuestionForm.render({"enunciado" : enunciado, "opcionUno" : opcionUno, "opcionDos" : opcionDos, "opcionTres" : opcionTres, "tema" : tema, "enunciado_error" : enunciado_error, "opcionUno_error" : opcionUno_error, "opcionDos_error" : opcionDos_error, "opcionTres_error" : opcionTres_error, "tema_error" : tema_error,"error_general" : error_general}))
+		self.response.write(newQuestionForm.render({"onload" : onload, "enunciado" : enunciado, "opcionUno" : opcionUno, "opcionDos" : opcionDos, "opcionTres" : opcionTres, "tema" : tema, "enunciado_error" : enunciado_error, "opcionUno_error" : opcionUno_error, "opcionDos_error" : opcionDos_error, "opcionTres_error" : opcionTres_error, "tema_error" : tema_error,"error_general" : error_general}))
 	
 	def get(self):
 		if (self.session.get('user')):
-			self.write_question_form()
-			if self.session.get('preguntaCreada'):
-				del self.session['preguntaCreada']
-				self.response.write("Pregunta añadida")
+			self.write_question_form()	
 		else:
 			self.session['redirect'] = "SI"
 			self.redirect('/Login')
@@ -272,7 +279,7 @@ class NewQuestionHandler(session_module.BaseSessionHandler):
 			error = True
 
 		if error:
-			self.write_question_form(sani_enunciado, sani_opcionUno, sani_opcionDos, sani_opcionTres, sani_tema, enunciado_error, opcionUno_error, opcionDos_error, opcionTres_error, tema_error, error_general)
+			self.write_question_form("", sani_enunciado, sani_opcionUno, sani_opcionDos, sani_opcionTres, sani_tema, enunciado_error, opcionUno_error, opcionDos_error, opcionTres_error, tema_error, error_general)
 		else:
 			pregunta = Pregunta.query(Pregunta.enunciado == q_enunciado).count()
 			if pregunta == 0:
@@ -297,11 +304,10 @@ class NewQuestionHandler(session_module.BaseSessionHandler):
 					num = t.numPreg
 					t.numPreg = num + 1
 					t.put()
-				self.session['preguntaCreada']="SI"
-				self.redirect("/NuevaPregunta")
+				self.write_question_form("alertNuevaPregunta()", "", "", "", "", "", "", "", "", "", "", "")
 			else:
 				error_general = "Ya había una pregunta con este enunciado. Inténtalo con una nueva."
-				self.write_question_form(sani_enunciado, sani_opcionUno, sani_opcionDos, sani_opcionTres, sani_tema, enunciado_error, opcionUno_error, opcionDos_error, opcionTres_error, tema_error, error_general)
+				self.write_question_form("alertPregRepetida()", sani_enunciado, sani_opcionUno, sani_opcionDos, sani_opcionTres, sani_tema, enunciado_error, opcionUno_error, opcionDos_error, opcionTres_error, tema_error, error_general)
 
 class VerPreguntasHandler(session_module.BaseSessionHandler):
 	def get(self):
@@ -332,6 +338,75 @@ class QuizHandler(session_module.BaseSessionHandler):
 		quiz = jinja_env.get_template("templates/quiz.html")
 		self.response.write(quiz.render({'preguntas' : preguntas, 'tema' : tema}))
 
+	def post(self):
+		tema = self.request.get('tema')
+		preguntas = Pregunta.query(Pregunta.tema == tema).order(Pregunta.cod)
+		aciertos = 0
+		fallos = 0
+
+		for p in preguntas:
+			user_respuesta = self.request.get(p.cod)
+			if user_respuesta == p.respCorrecta:
+				aciertos = aciertos + 1
+			else:
+				fallos = fallos + 1
+
+		anonimo = Anonimo.query(Anonimo.nick == self.session.get('anonimo')).get()
+		anonimo.pregFalladas = anonimo.pregFalladas + fallos
+		anonimo.pregCorrectas = anonimo.pregCorrectas + aciertos
+		anonimo.put()
+		self.redirect('/Resultado?tema=%s&aciertos=%i&fallos=%i' %(tema, aciertos, fallos))
+
+class ResultHandler(session_module.BaseSessionHandler):
+	def get(self):
+		tema = self.request.get('tema')
+		aciertos = self.request.get('aciertos')
+		fallos = self.request.get('fallos')
+		resultados = jinja_env.get_template("templates/resultados.html")
+		self.response.write(resultados.render({'tema' : tema, 'aciertos' : aciertos, 'fallos' : fallos}))
+
+class FinalizarJuegoHandler(session_module.BaseSessionHandler):
+	def get(self):
+		self.session['finJuego'] = 'SI'
+		self.redirect('/')
+
+class ComprobarEmail(session_module.BaseSessionHandler):
+	def post(self):
+		EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
+		email = self.request.get('email')
+		if not EMAIL_RE.match(email):
+			self.response.out.write('Por favor, introduzca un email válido (ejemplo@ejemplo.com)')
+		else:
+			self.response.out.write('Email válido')
+
+class ComprobarPass(session_module.BaseSessionHandler):
+	def post(self):
+		PASSWORD_RE = re.compile(r"^.{3,20}$")
+		password = self.request.get("pass")
+		if not PASSWORD_RE.match(password):
+			self.response.out.write('La contraseña debe tener entre 3 y 20 carácteres')
+		else:
+			self.response.out.write('Password válida')
+
+class ComprobarUser(session_module.BaseSessionHandler):
+	def post(self):
+		USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+		user = self.request.get("user")
+		if not USER_RE.match(user):
+			self.response.out.write('El nombre de usuario solo puede estar compuesto por letras, números y guiones (- o _) y debe tener entre 3 y 20 carácteres.')
+		else:
+			self.response.out.write('Nombre de usuario válido')
+
+class ComprobarPregunta(session_module.BaseSessionHandler):
+	def post(self):
+		codPreg = self.request.get('codPreg')
+		preg = Pregunta.query(Pregunta.cod == codPreg).get()
+		respuesta = self.request.get('selectedOption')
+		if respuesta == preg.respCorrecta:
+			self.response.out.write('Respuesta correcta!')
+		else:
+			self.response.out.write('Parece que no es la respuesta correcta...')
+			
 
 app = webapp2.WSGIApplication([
 	('/', MainHandler),
@@ -343,5 +418,11 @@ app = webapp2.WSGIApplication([
 	('/VerPreguntas', VerPreguntasHandler),
 	('/EliminarPreguntas', DeleteQuestionsHandler),
 	('/ElegirTema', ElegirTemaHandler),
-	('/Quiz', QuizHandler)
+	('/Quiz', QuizHandler),
+	('/Resultado', ResultHandler),
+	('/FinalizarJuego', FinalizarJuegoHandler),
+	('/comprobarEmail', ComprobarEmail),
+	('/comprobarPass', ComprobarPass),
+	('/comprobarUser', ComprobarUser),
+	('/comprobarPregunta', ComprobarPregunta)
 ], config=session_module.myconfig_dict, debug=True)

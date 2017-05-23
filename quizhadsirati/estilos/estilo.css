@@ -53,6 +53,53 @@ li a:hover:not(.active) {
     border-bottom: 4px solid #ff4058;
 }
 
+li a.salir{
+    display: block;
+    text-align: center;
+    padding: 12px 25px;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+
+    background: #cc0000;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+
+    margin-top: 5px;
+    margin-right: 12px;
+}
+
+li a.salir:visited{
+    color: white;
+}
+
+li a.salir:hover, a.salir:hover:not(.active){
+    background: #990000;
+    border-bottom : none;
+}
+
+a.button_repetir, a.button_volver{
+    padding: 8px 12px;
+    text-decoration: none;
+    background: #ff4058;
+    box-shadow: 0px 2px 10px 2px #ff7284;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+a.button_repetir:visited, a.button_volver:visited{
+    color: white;
+}
+
+a.button_repetir:hover, a.button_volver:hover{
+   background:#ff1a38;
+}
+
 /*CSS FORMULARIOS*/
 
 body.fondo{
@@ -166,7 +213,7 @@ h1 {
     outline: none;   
 }
 
-#comprobarUsername, #comprobarEmail, #compPasswords{
+#comprobarUser, #comprobarEmail, #comprobarPass, #comprobarPass2, .comprobarPreg{
     color: #ff3377;
     font-size:15px;
 }
@@ -275,8 +322,30 @@ td{
     font-family: 'Open Sans', sans-serif;
 }
 
-tr:hover td{
+.select tr:hover td{
     background-color: #ffe6e9;
+}
+
+td.aciertos{
+    color: #49d049;
+    width: 150px;
+    font-weight: bold;
+}
+
+td.aciertos_resul{
+     color: #49d049;
+     width: 150px;
+}
+
+td.fallos{
+    color: #d04949;
+    font-weight: bold;
+    width: 150px;
+}
+
+td.fallos_resul{
+    color: #d04949;
+    width: 150px;
 }
 
 td a.button{

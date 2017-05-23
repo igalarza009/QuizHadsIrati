@@ -3,9 +3,28 @@
 	<meta charset="utf-8">
 	<title>Añadir pregunta</title>
 	<link rel="stylesheet" href="/style/estilo.css" />
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
+	<script src="/sweet/sweetalert2.min.js"></script>
+	<link rel="stylesheet" href="/sweet/sweetalert2.min.css">
+
+	<script> 
+		function alertNuevaPregunta(){
+			swal(
+				'¡Pregunta añadida!', 
+				'Pregunta añadida correctamente.',
+				'success'
+			)
+		}
+
+		function alertPregRepetida(){
+			swal(
+				'Pregunta repetida...', 
+				'Ya había una pregunta con este enunciado... Prueba con otro distinto.',
+				'error'
+			)
+		}
+	</script>
 </head>
-<body class="fondo">
+<body class="fondo" onload="{{onload}}">
 	<ul>
 		<li class="logo"><img src="/images/QuizLogo2.png"/></li>
 		<li><a href="/UserMain">Inicio</a></li>

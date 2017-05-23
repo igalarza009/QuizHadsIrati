@@ -15,6 +15,9 @@ handlers:
 - url: /style
   static_dir: estilos
 
+- url: /sweet
+  static_dir: sweetalert
+
 - url: .*
   script: main.app
 
