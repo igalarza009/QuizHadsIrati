@@ -5,16 +5,8 @@
 	<link rel="stylesheet" href="/style/estilo.css" />
 	<script src="/sweet/sweetalert2.min.js"></script>
 	<link rel="stylesheet" href="/sweet/sweetalert2.min.css">
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
 	<script type="text/javascript">
-
-		function alertRegistroExito(){
-			swal(
-				'¡Registro completado!', 
-				'El registro se ha completado con éxito.',
-				'success'
-			)
-		}
 
 		function alertUserRepetido(){
 			swal(
@@ -22,6 +14,18 @@
 				'El usuario que estás intentando registrar ya existía...',
 				'error'
 			)
+		}
+
+		function fotoDinamica(im,output){
+			if (im.files && im.files[0]){
+				var reader = new FileReader();
+				reader.onload = function(){
+					// var output = document.getElementById('idImg');
+					output.attr("src", reader.result);
+					// output.src = reader.result;
+				};
+				reader.readAsDataURL(im.files[0]);
+			}
 		}
 
 
@@ -88,6 +92,10 @@
 					$("#comprobarPass2").html('Las passwords coinciden.');
 				}
 			});
+			$('#avatar').change(function(){
+				var img = $('#imagenSelec');
+				fotoDinamica(this,img);
+			});
 		});
 
 	</script>
@@ -104,7 +112,7 @@
 
 		<div class="container">
 
-			<form id='registro' name='registro' method="post">
+			<form id='registro' name='registro' method="post" enctype="multipart/form-data">
 
 				<div class="header">
 					<h3> REGISTRO </h3>
@@ -129,6 +137,10 @@
 					Repite password(*): <input type="password" id="password2" name="verify" value="{{verify}}" placeholder="La misma contraseña que antes..."> <br>
 					<div id="comprobarPass2"> {{verify_error}} <br/> </div>
 					<p class="error">  </p>
+
+					Selecciona una imagen para tu avatar: <br/><br/>
+					<img src="/images/no_image.png" id="imagenSelec" name="img" width="210" height="150">
+					<div style="text-align: center;"> <input name="avatar" type="file" id="avatar"> </div>
 	
 					<p align="center">
 						<input type="submit" id="submit" value="REGISTRARSE" name="submit"> 

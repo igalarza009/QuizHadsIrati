@@ -3,10 +3,11 @@
 	<meta charset="utf-8">
 	<title>Quiz {{tema}}</title>
 	<link rel="stylesheet" href="/style/estilo.css" />
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
 
 	<script type="text/javascript">
 		function comprobarPreg(codPreg) {	
+			$("#comprobarPreg_" + codPreg).html('...');
 			var selectedOption = $('input:radio[name='+codPreg+']:checked').val();
 			$.ajax("/comprobarPregunta",{
 					"type": "post",

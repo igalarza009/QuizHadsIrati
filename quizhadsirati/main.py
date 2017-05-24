@@ -30,6 +30,8 @@ import sys
 import jinja2
 import base64
 
+import urllib, cStringIO
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -44,6 +46,7 @@ class Usuario(ndb.Model):
 	email = ndb.StringProperty()
 	password = ndb.StringProperty(indexed=True)
 	creado = ndb.DateTimeProperty(auto_now_add = True)
+	avatar = ndb.BlobProperty()
 
 class Pregunta(ndb.Model):
 	cod = ndb.StringProperty()
@@ -185,6 +188,8 @@ class SignUpHandler(session_module.BaseSessionHandler):
 				u.nombre = user_username
 				u.email = user_email
 				u.password = user_password
+				if self.request.get('avatar'):
+					u.avatar = str(self.request.get('avatar'))
 				u.put()
 				self.session['user']=user_username
 				self.redirect("/UserMain")
@@ -416,6 +421,17 @@ class ComprobarPregunta(session_module.BaseSessionHandler):
 			self.response.out.write('BIEN')
 		else:
 			self.response.out.write('MAL')
+
+class ImageHandler (session_module.BaseSessionHandler):
+	def get(self):
+		user=self.request.get('user')
+		usuario = Usuario.query(Usuario.nombre == user).get()
+		self.response.headers['Content-Type'] = "image/png"
+		if usuario.avatar:
+			self.response.out.write(usuario.avatar)
+		else:
+			img = open('no_image.png', 'rb')
+			self.response.out.write(img.read())
 			
 
 app = webapp2.WSGIApplication([
@@ -434,5 +450,6 @@ app = webapp2.WSGIApplication([
 	('/comprobarEmail', ComprobarEmail),
 	('/comprobarPass', ComprobarPass),
 	('/comprobarUser', ComprobarUser),
-	('/comprobarPregunta', ComprobarPregunta)
+	('/comprobarPregunta', ComprobarPregunta),
+	('/AvatarUser', ImageHandler)
 ], config=session_module.myconfig_dict, debug=True)

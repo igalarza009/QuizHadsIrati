@@ -76,6 +76,7 @@ li a.salir:visited{
 }
 
 li a.salir:hover, a.salir:hover:not(.active){
+    color: white;
     background: #990000;
     border-bottom : none;
 }
