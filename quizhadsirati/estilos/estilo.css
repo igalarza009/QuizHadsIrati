@@ -234,8 +234,13 @@ h1 {
     outline: none;   
 }
 
-#comprobarUser, #comprobarEmail, #comprobarPass, #comprobarPass2, .comprobarPreg{
-    color: #ff3377;
+div .comprobarError{
+    color:  #cc0033;
+    font-size:15px;
+}
+
+div .comprobarBien{
+    color: #00994d;
     font-size:15px;
 }
 
@@ -286,6 +291,11 @@ h1 {
     height: 150px;
 }
 
+#respuestas::after {
+    content: "";
+    clear: both;
+    display: table;
+}
 
 
 .bold{

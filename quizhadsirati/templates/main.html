@@ -5,6 +5,8 @@
 		<meta charset="utf-8">
 		<script src="/sweet/sweetalert2.min.js"></script>
 		<link rel="stylesheet" href="/sweet/sweetalert2.min.css">
+		<script src="https://apis.google.com/js/platform.js" async defer></script>
+		<meta name="google-signin-client_id" content="187147186241-nnajimgdjpvcblprlchunbtu9j1st85g.apps.googleusercontent.com">
 
 		<script>
 			function alertFinJuego(){
@@ -14,6 +16,11 @@
   					'info'
 				)
 			}
+
+			function signOut() {
+			    gapi.auth2.getAuthInstance().signOut();
+			}
+
 		</script>
 
 	</head>

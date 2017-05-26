@@ -5,7 +5,7 @@
 	<link rel="stylesheet" href="/style/estilo.css" />
 	<script src="/sweet/sweetalert2.min.js"></script>
 	<link rel="stylesheet" href="/sweet/sweetalert2.min.css">
-
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" charset="UTF-8"></script>
 	<script> 
 		function alertNuevaPregunta(){
 			swal(
@@ -22,6 +22,27 @@
 				'error'
 			)
 		}
+
+		function fotoDinamica(im,output){
+			if (im.files && im.files[0]){
+				var reader = new FileReader();
+				reader.onload = function(){
+					// var output = document.getElementById('idImg');
+					output.attr("src", reader.result);
+					// output.src = reader.result;
+				};
+				reader.readAsDataURL(im.files[0]);
+			}
+		}
+
+		$(document).ready(function() {
+			$('#imagen').change(function(){
+				var img = $('#imagenSelec');
+				fotoDinamica(this,img);
+			});
+		});
+
+
 	</script>
 
 </head>
@@ -38,7 +59,7 @@
 
 		<div class="container">
 
-			<form id='newQuestion' name='newQuestion' method="post">
+			<form id='newQuestion' name='newQuestion' method="post" enctype="multipart/form-data">
 
 				<div class="header">
 					<h3> AÑADIR PREGUNTA </h3>
@@ -69,6 +90,11 @@
 
 					Tema de la pregunta (sin tildes por favor): <input type="text" id="tema" name="tema" value="{{tema}}" required > <br>
 					<p class="error"> {{tema_error}} </p>
+
+					Selecciona una imagen para la pregunta (opcional): <br/><br/>
+					<div style="text-align: center;"> 
+					<img src="/images/question_icon.png" id="imagenSelec" width="140" height="120">
+					<input name="imagen" type="file" id="imagen"> </div>
 
 					<p align="center">
 						<input type="submit" id="submit" value="AÑADIR PREGUNTA" name="submit"> 

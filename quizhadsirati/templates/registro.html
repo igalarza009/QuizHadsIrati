@@ -30,7 +30,7 @@
 
 
 		$(document).ready(function() {
-	    	$('#correo').change(function(){
+			$('#correo').change(function(){
 				$("#comprobarEmail").html('Comprobando...');
 				var email = $("#correo").val();
 				$.ajax("/comprobarEmail",{
@@ -39,7 +39,14 @@
 						"email" : email
 					},
 					"success": function(result){ 
-						$("#comprobarEmail").html(result);
+						if (result == 'BIEN'){
+							$("#comprobarEmail").addClass('comprobarBien').removeClass('comprobarError');
+							$("#comprobarEmail").html('El email es correcto');
+						}
+						else {
+							$("#comprobarEmail").addClass('comprobarError').removeClass('comprobarBien');
+							$("#comprobarEmail").html('Por favor, introduzca un email válido (ejemplo@ejemplo.com)');
+						}
 					},
 					"error": function(result){ 
 						console.error("Se ha producido un error:", result);
@@ -56,7 +63,14 @@
 						"pass" : pass
 					},
 					"success": function(result){ 
-						$("#comprobarPass").html(result);
+						if (result == 'BIEN'){
+							$("#comprobarPass").addClass('comprobarBien').removeClass('comprobarError');
+							$("#comprobarPass").html('Password válida');
+						}
+						else {
+							$("#comprobarPass").addClass('comprobarError').removeClass('comprobarBien');
+							$("#comprobarPass").html('La contraseña debe tener entre 3 y 20 carácteres');
+						}
 					},
 					"error": function(result){ 
 						console.error("Se ha producido un error:", result);
@@ -73,7 +87,14 @@
 						"user" : user
 					},
 					"success": function(result){ 
-						$("#comprobarUser").html(result);
+						if (result == 'BIEN'){
+							$("#comprobarUser").addClass('comprobarBien').removeClass('comprobarError');
+							$("#comprobarUser").html('Nombre de usuario válido');
+						}
+						else {
+							$("#comprobarUser").addClass('comprobarError').removeClass('comprobarBien');
+							$("#comprobarUser").html('El nombre de usuario solo puede estar compuesto por letras, números y guiones (- o _) y debe tener entre 3 y 20 carácteres.');
+						}
 					},
 					"error": function(result){ 
 						console.error("Se ha producido un error:", result);
@@ -86,9 +107,11 @@
 				var pass2 = $("#password2").val();
 				var pass = $("#password").val();
 				if (pass2 !== pass) {
+					$("#comprobarPass2").addClass('comprobarError').removeClass('comprobarBien');
 					$("#comprobarPass2").html('Las passwords no coinciden. Vuelva a intentarlo por favor.');
 				}
 				else{
+					$("#comprobarPass2").addClass('comprobarBien').removeClass('comprobarError');
 					$("#comprobarPass2").html('Las passwords coinciden.');
 				}
 			});
@@ -123,19 +146,19 @@
 				<div class="inputs">
 
 					Username(*): <input type="text" id="username" name="username" value="{{username}}" placeholder="Tu nombre..." autofocus=""> <br> 
-					<div id="comprobarUser"> {{username_error}} <br/> </div>
+					<div class="comprobarError" id="comprobarUser"> {{username_error}} <br/> </div>
 					<p class="error">  </p> 
 
 					Email(*): <input type="text" id="correo" name="email" value="{{email}}" placeholder="Tu email..."> <br>
-					<div id="comprobarEmail"> {{email_error}} <br/> </div>
+					<div class="comprobarError" id="comprobarEmail"> {{email_error}} <br/> </div>
 					<p class="error">  </p>
 
 					Password(*): <input type="password" id="password" name="password" value="{{password}}" autocomplete="off"> <br>
-					<div id="comprobarPass"> {{password_error}} <br/> </div>
+					<div class="comprobarError" id="comprobarPass"> {{password_error}} <br/> </div>
 					<p class="error">  </p>
 
 					Repite password(*): <input type="password" id="password2" name="verify" value="{{verify}}" placeholder="La misma contraseña que antes..."> <br>
-					<div id="comprobarPass2"> {{verify_error}} <br/> </div>
+					<div class="comprobarError" id="comprobarPass2"> {{verify_error}} <br/> </div>
 					<p class="error">  </p>
 
 					Selecciona una imagen para tu avatar: <br/><br/>
@@ -148,6 +171,8 @@
 				</div>
 			</form>
 		</div>
+
+		<a href="/EliminarUsuarios"> Eliminar usuarios y anónimos </a>
 
 	</div>
 </body>

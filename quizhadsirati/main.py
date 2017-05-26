@@ -30,7 +30,8 @@ import sys
 import jinja2
 import base64
 
-import urllib, cStringIO
+import oauth2client
+from oauth2client import client, crypt
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -56,6 +57,7 @@ class Pregunta(ndb.Model):
 	resp3 = ndb.StringProperty()
 	respCorrecta = ndb.StringProperty()
 	tema = ndb.StringProperty()
+	icono = ndb.BlobProperty()
 	creado = ndb.DateTimeProperty(auto_now_add = True)
 
 class Tema(ndb.Model):
@@ -287,14 +289,16 @@ class NewQuestionHandler(session_module.BaseSessionHandler):
 			pregunta = Pregunta.query(Pregunta.enunciado == q_enunciado).count()
 			if pregunta == 0:
 				p = Pregunta()
+				num = Pregunta.query().count() + 1
+				p.cod = "preg%i" %num
 				p.enunciado = q_enunciado
 				p.resp1 = q_opcionUno
 				p.resp2 = q_opcionDos
 				p.resp3 = q_opcionTres
 				p.respCorrecta = q_opcionCorrecta 
 				p.tema = q_tema
-				num = Pregunta.query().count() + 1
-				p.cod = "preg%i" %num
+				if self.request.get('imagen'):
+					p.icono = str(self.request.get('imagen'))
 				p.put()
 				tema = Tema.query(Tema.nombre == q_tema).count()
 				if tema == 0:
@@ -309,7 +313,6 @@ class NewQuestionHandler(session_module.BaseSessionHandler):
 					t.put()
 				self.write_question_form("alertNuevaPregunta()", "", "", "", "", "", "", "", "", "", "")
 			else:
-				error_general = "Ya había una pregunta con este enunciado. Inténtalo con una nueva."
 				self.write_question_form("alertPregRepetida()", sani_enunciado, sani_opcionUno, sani_opcionDos, sani_opcionTres, sani_tema, enunciado_error, opcionUno_error, opcionDos_error, opcionTres_error, tema_error)
 
 class VerPreguntasHandler(session_module.BaseSessionHandler):
@@ -326,7 +329,13 @@ class DeleteQuestionsHandler(session_module.BaseSessionHandler):
 	def get(self):
 		ndb.delete_multi(Pregunta.query().iter(keys_only = True))
 		ndb.delete_multi(Tema.query().iter(keys_only = True))
-		self.redirect('/VerPreguntas')
+		self.redirect('/UserMain')
+
+class DeleteUsersHandler(session_module.BaseSessionHandler):
+	def get(self):
+		ndb.delete_multi(Usuario.query().iter(keys_only = True))
+		ndb.delete_multi(Anonimo.query().iter(keys_only = True))
+		self.redirect('/')
 
 class ElegirTemaHandler(session_module.BaseSessionHandler):
 	def get(self):
@@ -382,35 +391,38 @@ class ResultHandler(session_module.BaseSessionHandler):
 
 class FinalizarJuegoHandler(session_module.BaseSessionHandler):
 	def get(self):
-		self.session['finJuego'] = 'SI'
-		self.redirect('/')
+		if (self.session.get('anonimo')):
+			self.session['finJuego'] = 'SI'
+			self.redirect('/')
+		else:
+			self.redirect('/')
 
 class ComprobarEmail(session_module.BaseSessionHandler):
 	def post(self):
 		EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 		email = self.request.get('email')
 		if not EMAIL_RE.match(email):
-			self.response.out.write('Por favor, introduzca un email válido (ejemplo@ejemplo.com)')
+			self.response.out.write('MAL')
 		else:
-			self.response.out.write('Email válido')
+			self.response.out.write('BIEN')
 
 class ComprobarPass(session_module.BaseSessionHandler):
 	def post(self):
 		PASSWORD_RE = re.compile(r"^.{3,20}$")
 		password = self.request.get("pass")
 		if not PASSWORD_RE.match(password):
-			self.response.out.write('La contraseña debe tener entre 3 y 20 carácteres')
+			self.response.out.write('MAL')
 		else:
-			self.response.out.write('Password válida')
+			self.response.out.write('BIEN')
 
 class ComprobarUser(session_module.BaseSessionHandler):
 	def post(self):
 		USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 		user = self.request.get("user")
 		if not USER_RE.match(user):
-			self.response.out.write('El nombre de usuario solo puede estar compuesto por letras, números y guiones (- o _) y debe tener entre 3 y 20 carácteres.')
+			self.response.out.write('MAL')
 		else:
-			self.response.out.write('Nombre de usuario válido')
+			self.response.out.write('BIEN')
 
 class ComprobarPregunta(session_module.BaseSessionHandler):
 	def post(self):
@@ -424,7 +436,7 @@ class ComprobarPregunta(session_module.BaseSessionHandler):
 
 class ImageHandler (session_module.BaseSessionHandler):
 	def get(self):
-		user=self.request.get('user')
+		user = self.request.get('user')
 		usuario = Usuario.query(Usuario.nombre == user).get()
 		self.response.headers['Content-Type'] = "image/png"
 		if usuario.avatar:
@@ -433,6 +445,42 @@ class ImageHandler (session_module.BaseSessionHandler):
 			img = open('no_image.png', 'rb')
 			self.response.out.write(img.read())
 			
+class ImageQuestionHandler (session_module.BaseSessionHandler):
+	def get(self):
+		codPreg = self.request.get('cod')
+		preg = Pregunta.query(Pregunta.cod == codPreg).get()
+		self.response.headers['Content-Type'] = "image/png"
+		if preg.icono:
+			self.response.out.write(preg.icono)
+		else:
+			img = open('question_icon.png', 'rb')
+			self.response.out.write(img.read())
+
+class EjemploGmail(session_module.BaseSessionHandler):
+	def get(self):
+		ejemplo = jinja_env.get_template("templates/ejemplo_gmail.html")
+		self.response.write(ejemplo.render())
+
+class TokenLoginHandler(session_module.BaseSessionHandler):
+	def post(self):
+		token = self.request.get('idtoken')
+		try:
+			idinfo = client.verify_id_token(token, '187147186241-nnajimgdjpvcblprlchunbtu9j1st85g.apps.googleusercontent.com')
+			if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+				self.response.out.write('NO')
+		except crypt.AppIdentityError:
+			self.response.out.write('NO')
+
+		username = idinfo['name']
+		useremail = idinfo['email']
+		user = Usuario.query(Usuario.nombre == username, Usuario.email == useremail).count()
+		if user == 0:
+			u = Usuario()
+			u.nombre = username
+			u.email = useremail
+			u.put()
+		self.session['user'] = username
+		self.response.out.write('SI')
 
 app = webapp2.WSGIApplication([
 	('/', MainHandler),
@@ -443,6 +491,7 @@ app = webapp2.WSGIApplication([
 	('/NuevaPregunta', NewQuestionHandler),
 	('/VerPreguntas', VerPreguntasHandler),
 	('/EliminarPreguntas', DeleteQuestionsHandler),
+	('/EliminarUsuarios', DeleteUsersHandler),
 	('/ElegirTema', ElegirTemaHandler),
 	('/Quiz', QuizHandler),
 	('/Resultado', ResultHandler),
@@ -451,5 +500,8 @@ app = webapp2.WSGIApplication([
 	('/comprobarPass', ComprobarPass),
 	('/comprobarUser', ComprobarUser),
 	('/comprobarPregunta', ComprobarPregunta),
-	('/AvatarUser', ImageHandler)
+	('/AvatarUser', ImageHandler),
+	('/QuestionIcon', ImageQuestionHandler),
+	('/EjemploGmail', EjemploGmail),
+	('/TokenLogin', TokenLoginHandler)
 ], config=session_module.myconfig_dict, debug=True)

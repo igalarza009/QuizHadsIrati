@@ -3,6 +3,76 @@
 		<title> Login </title>
 		<link rel="stylesheet" href="/style/estilo.css" />
 		<meta charset="utf-8">
+		<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+		<meta name="google-signin-client_id" content="187147186241-nnajimgdjpvcblprlchunbtu9j1st85g.apps.googleusercontent.com">
+		<script src="/sweet/sweetalert2.min.js"></script>
+		<link rel="stylesheet" href="/sweet/sweetalert2.min.css">
+
+		<script>
+
+			// Google Sign-in (new)
+			function onSignInFailure(googleUser) {
+				swal(
+					'Datos incorrectos', 
+					'No se pudo iniciar sesión, inténtelo de nuevo por favor.',
+					'error'
+				)
+			}
+
+			function onSignIn(googleUser) {
+				// Si el login es correcto ...
+				var profile = googleUser.getBasicProfile();
+				var id_token = googleUser.getAuthResponse().id_token;
+       			var xhr = new XMLHttpRequest();
+				xhr.open('POST', '/TokenLogin', true);
+				xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+				xhr.onreadystatechange = function() { 		
+					switch(xhr.readyState) { 
+					case 0: document.getElementById('iniciandoSesion').innerHTML = "<b>Iniciando sesión...</b>"; 
+						break;
+					case 1: document.getElementById('iniciandoSesion').innerHTML ="<b>Iniciando sesión...</b>"; 
+						break;
+					case 2: document.getElementById('iniciandoSesion').innerHTML ="<b>Iniciando sesión...</b>"; 
+						break;
+					case 3: document.getElementById('iniciandoSesion').innerHTML = "<b>Iniciando sesión...</b>"; 
+						break;
+					case 4:
+	            		var valido = "SI";
+						var resultado = xhr.responseText;
+						if(valido.localeCompare(resultado) == 0){
+							window.location.assign('/UserMain');
+						}
+						else{
+							swal(
+								'Datos incorrectos', 
+								'No se pudo iniciar sesión, inténtelo de nuevo por favor.',
+								'error'
+							);
+						}
+	        			break;
+	        		}
+  				}
+				xhr.send('idtoken=' + id_token);
+			}
+
+
+			function renderButton() {
+		    	gapi.signin2.render('my-signin2', {
+			        'scope': 'profile email',
+			        'width': 240,
+			        'height': 50,
+			        'longtitle': true,
+			        'theme': 'dark',
+			        'onsuccess': onSignIn,
+			        'onfailure': onSignInFailure
+		    	});
+    		}
+
+			window.onbeforeunload = function(e){
+  				gapi.auth2.getAuthInstance().signOut();
+			};
+
+		</script>
 	</head>
 	<body class="fondo">
 		<ul>
@@ -31,6 +101,7 @@
 					<p> <input id="submit" value="ENTRAR" type="submit" /> </p>
 				</div>
 				</form>
+				<div id="my-signin2"></div> <span id="iniciandoSesion"></span>
 			</div>
 
 		</div>
