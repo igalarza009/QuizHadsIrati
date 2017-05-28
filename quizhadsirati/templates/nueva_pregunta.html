@@ -40,6 +40,28 @@
 				var img = $('#imagenSelec');
 				fotoDinamica(this,img);
 			});
+			$('#enunciado').change(function(){
+				$("#comprobarEnunciado").html('...<br/><br/>');
+				var enunciado = $("#enunciado").val();
+				$.ajax("/comprobarEnunciado",{
+					"type": "post",
+					"data":{
+						"enunciado" : enunciado
+					},
+					"success": function(result){ 
+						if (result == 'BIEN'){
+							$("#comprobarEnunciado").html('');
+						}
+						else {
+							$("#comprobarEnunciado").html('Ya existe una pregunta con este enunciado... Por favor, prueba con otro distinto.<br/><br/>');
+						}
+					},
+					"error": function(result){ 
+						console.error("Se ha producido un error:", result);
+					}, 
+					"async": true 
+				});
+			});
 		});
 
 
@@ -69,8 +91,8 @@
 
 				<div class="inputs">
 
-					Enunciado: <input type="text" name="enunciado" value="{{enunciado}}" required autofocus=""> <br> 
-					<p class="error"> {{enunciado_error}} </p> 
+					Enunciado: <input type="text" id="enunciado" name="enunciado" value="{{enunciado}}" required autofocus=""> <br> 
+					<div id="comprobarEnunciado" class="comprobarError"> {{enunciado_error}} </div> 
 
 					Opción 1: <input type="text" id="opcion1" name="opcion1" value="{{opcionUno}}" required > <br>
 					<p class="error"> {{opcionUno_error}} </p>

@@ -16,6 +16,14 @@
 			)
 		}
 
+		function alertUserCreado(){
+			swal(
+				'¡Usuario registrado!', 
+				'El usuario se ha registrado correctamente.',
+				'success'
+			)
+		}
+
 		function fotoDinamica(im,output){
 			if (im.files && im.files[0]){
 				var reader = new FileReader();
@@ -171,8 +179,6 @@
 				</div>
 			</form>
 		</div>
-
-		<a href="/EliminarUsuarios"> Eliminar usuarios y anónimos </a>
 
 	</div>
 </body>

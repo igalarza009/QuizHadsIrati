@@ -18,20 +18,25 @@
 import webapp2
 from webapp2_extras import sessions
 
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'lib'))
+
 import session_module
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
 import cgi
-import os
 import re
-import sys
 
 import jinja2
 import base64
 
 import oauth2client
 from oauth2client import client, crypt
+
+import suds
+import urllib2
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -75,8 +80,16 @@ class UserMainHandler(session_module.BaseSessionHandler):
 	def get(self):
 		if (self.session.get('user')):
 			user_username = self.session.get('user')
+			url = 'http://v1.fraudlabs.com/ip2locationwebservice.asmx?wsdl'
+			client = suds.client.Client(url)
+			ip = os.environ["REMOTE_ADDR"]
+			resp = client.service.IP2Location({"IP" : ip, "LICENSE" : '02-DG42-QEXG'})
+			pais = resp['COUNTRYNAME']
+			ciudad = resp['CITY']
+			latitud = resp['LATITUDE']
+			longitud = resp['LONGITUDE']
 			userMain = jinja_env.get_template("templates/user_main.html")
-			self.response.write(userMain.render({'welcome' : user_username}))
+			self.response.write(userMain.render({'lat' : latitud, 'long' : longitud, 'welcome' : user_username, "pais" : pais, "ciudad" : ciudad}))
 		else:
 			self.session['redirect'] = "SI"
 			self.redirect('/Login')
@@ -193,8 +206,7 @@ class SignUpHandler(session_module.BaseSessionHandler):
 				if self.request.get('avatar'):
 					u.avatar = str(self.request.get('avatar'))
 				u.put()
-				self.session['user']=user_username
-				self.redirect("/UserMain")
+				self.write_signup("alertUserCreado()", "", "", "", "", "", "", "", "")
 			else:
 				self.write_signup("alertUserRepetido()", sani_username, sani_password, sani_verify, sani_email, username_error, password_error, verify_error, email_error)
 
@@ -434,6 +446,15 @@ class ComprobarPregunta(session_module.BaseSessionHandler):
 		else:
 			self.response.out.write('MAL')
 
+class ComprobarEnunciado(session_module.BaseSessionHandler):
+	def post(self):
+		enunciado = self.request.get('enunciado')
+		preg = Pregunta.query(Pregunta.enunciado == enunciado).count()
+		if preg == 0:
+			self.response.out.write('BIEN')
+		else:
+			self.response.out.write('MAL')
+
 class ImageHandler (session_module.BaseSessionHandler):
 	def get(self):
 		user = self.request.get('user')
@@ -500,6 +521,7 @@ app = webapp2.WSGIApplication([
 	('/comprobarPass', ComprobarPass),
 	('/comprobarUser', ComprobarUser),
 	('/comprobarPregunta', ComprobarPregunta),
+	('/comprobarEnunciado', ComprobarEnunciado),
 	('/AvatarUser', ImageHandler),
 	('/QuestionIcon', ImageQuestionHandler),
 	('/EjemploGmail', EjemploGmail),

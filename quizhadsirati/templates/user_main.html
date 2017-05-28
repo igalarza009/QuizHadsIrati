@@ -3,6 +3,7 @@
 		<title> Panel de usuario </title>
 		<link rel="stylesheet" href="/style/estilo.css" />
 		<meta charset="utf-8">
+
 	</head>
 	<body class="fondo">
 		<ul>
@@ -18,10 +19,28 @@
 
 				<h1>¡¡ Bienvenid@ {{welcome}} !!</h1>
 				<br/>
-				<div style="text-align: center;">
-				<img src='/AvatarUser?user={{welcome}}' width="400" height="350"></img>
+				<div style="width: 700px;  margin: 0 auto;">
+					<div style="float: left; text-align: center;">
+						<img src='/AvatarUser?user={{welcome}}' width="250" height="200"></img>
+						<p style="font-weight: bold;"> Nos visitas desde... </p>
+						<p> País: {{pais}} </p>
+						<p> Ciudad: {{ciudad}} </p>
+					</div>
+					<div style="float: right;">
+						<div id="googleMap" style="width:380px;height:380px;"></div>
+					</div>
 				</div>
+				<script>
+					function myMap() {
+						var mapProp= {
+						    center:new google.maps.LatLng({{lat}},{{long}}),
+						    zoom:10,
+						};
+						var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+					}
+				</script>
 
+				<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyQTvB1DSnhvMcThTFdb2GV74YUqClauk&callback=myMap"></script>
 
 		</div>
 		
